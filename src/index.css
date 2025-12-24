@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* Mobile-first Sudoku color palette */
+  --color-ink: #1a1a2e;
+  --color-paper: #faf8f5;
+  --color-grid: #2d3436;
+  --color-accent: #e17055;
+  --color-accent-light: #fab1a0;
+  --color-highlight: #dfe6e9;
+  --color-selected: #74b9ff;
+  --color-conflict: #ff7675;
+  --color-same-value: #ffeaa7;
+  --color-fixed: #2d3436;
+  --color-user: #0984e3;
+  --color-notes: #636e72;
+  
+  /* Typography */
+  --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', monospace;
+}
+
+/* Global styles */
+html {
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  min-height: 100dvh;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent zoom on input focus for iOS */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
