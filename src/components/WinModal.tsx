@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useState } from 'react';
 import { gameStateAtom, newGameAtom, difficultyAtom } from '../store/game';
 
 const difficultyLabels: Record<string, string> = {
@@ -13,8 +14,15 @@ export function WinModal() {
   const gameState = useAtomValue(gameStateAtom);
   const newGame = useSetAtom(newGameAtom);
   const difficulty = useAtomValue(difficultyAtom);
+  const [dismissed, setDismissed] = useState(false);
 
-  if (!gameState.isComplete) return null;
+  // Reset dismissed state when a new game starts
+  if (!gameState.isComplete && dismissed) {
+    setDismissed(false);
+  }
+
+  // Don't show if not complete or if user dismissed
+  if (!gameState.isComplete || dismissed) return null;
 
   const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
   const mins = Math.floor(elapsed / 60);
@@ -40,12 +48,21 @@ export function WinModal() {
           Moves: <span className="font-semibold">{gameState.moveCount}</span>
         </p>
         
-        <button
-          onClick={() => newGame()}
-          className="w-full py-3 bg-accent text-white font-semibold rounded-xl shadow-lg hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
-        >
-          New Game
-        </button>
+        <div className="space-y-3">
+          <button
+            onClick={() => newGame()}
+            className="w-full py-3 bg-accent text-white font-semibold rounded-xl shadow-lg hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
+          >
+            New Game
+          </button>
+          
+          <button
+            onClick={() => setDismissed(true)}
+            className="w-full py-2.5 bg-highlight text-grid font-medium rounded-xl hover:bg-grid/10 active:scale-95 transition-all touch-manipulation"
+          >
+            Review Solution
+          </button>
+        </div>
       </div>
     </div>
   );

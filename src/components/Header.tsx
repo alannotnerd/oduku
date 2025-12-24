@@ -4,6 +4,7 @@ import {
   difficultyAtom, 
   newGameAtom, 
   gameStateAtom,
+  showHintAtom,
   type Difficulty,
 } from '../store/game';
 
@@ -20,6 +21,7 @@ const difficultyLabels: Record<Difficulty, string> = {
 export function Header() {
   const [difficulty, setDifficulty] = useAtom(difficultyAtom);
   const newGame = useSetAtom(newGameAtom);
+  const showHint = useSetAtom(showHintAtom);
   const gameState = useAtomValue(gameStateAtom);
   const [elapsed, setElapsed] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
@@ -53,12 +55,19 @@ export function Header() {
           <h1 className="text-2xl font-bold text-ink tracking-tight">
             Sudoku
           </h1>
-          {/* Difficulty Score Badge */}
+          {/* Difficulty Score Badge - Easter egg: triggers hint! */}
           {gameState.difficultyScore > 0 && (
             <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="px-2 py-0.5 text-xs font-mono bg-accent/10 text-accent rounded-full touch-manipulation"
-              title="Difficulty score based on solving techniques"
+              onClick={() => {
+                // Easter egg: click to show hint, long press for info
+                showHint();
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setShowInfo(!showInfo);
+              }}
+              className="px-2 py-0.5 text-xs font-mono bg-accent/10 text-accent rounded-full touch-manipulation hover:bg-accent/20 active:scale-95 transition-all"
+              title="💡 Click for hint!"
             >
               ★{Math.round(gameState.difficultyScore)}
             </button>

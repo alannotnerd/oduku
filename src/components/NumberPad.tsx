@@ -315,71 +315,78 @@ export function NumberPad() {
         candidateNum={swipingNum || 0}
       />
       
-      {/* Candidate Preview Bar */}
-      <div className="flex items-center justify-center gap-1.5 px-3 py-3 bg-highlight/50 rounded-xl">
-        {/* Cell info */}
-        <div className="flex items-center justify-center mr-2 min-w-[36px]">
+      {/* Candidate Preview Bar - fixed label + scrollable numbers */}
+      <div className="flex items-center bg-highlight/50 rounded-xl overflow-hidden">
+        {/* Cell info - fixed */}
+        <div className="flex items-center justify-center px-3 py-3 min-w-[48px] shrink-0 border-r border-grid/10">
           {cellHasValue ? (
             <span className="text-lg font-bold text-accent">
               {selectedCell.value}
             </span>
           ) : (
-            <span className="text-[10px] text-grid/50 font-mono">
+            <span className="text-[10px] text-grid/50 font-mono whitespace-nowrap">
               R{selected[0] + 1}C{selected[1] + 1}
             </span>
           )}
         </div>
 
-        {/* Number buttons - unified note mode */}
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
-          const hasNote = !cellHasValue && selectedCell.notes.has(num);
-          const isSwiping = swipingNum === num;
-          const { style: markStyle, indicator: markIndicator } = getMarkStyle(num);
+        {/* Number buttons - scrollable on small screens */}
+        <div 
+          className="flex-1 overflow-x-auto py-3 px-2"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <div className="flex items-center justify-start gap-1.5 min-w-max">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
+              const hasNote = !cellHasValue && selectedCell.notes.has(num);
+              const isSwiping = swipingNum === num;
+              const { style: markStyle, indicator: markIndicator } = getMarkStyle(num);
 
-          // Determine button style based on state (unified for all modes)
-          let buttonStyle = '';
-          let isClickable = true;
+              // Determine button style based on state (unified for all modes)
+              let buttonStyle = '';
+              let isClickable = true;
 
-          if (cellHasValue) {
-            // Cell already has a value - disabled
-            buttonStyle = 'bg-grid/5 text-grid/20 cursor-not-allowed';
-            isClickable = false;
-          } else if (hasNote) {
-            // Has candidate - show as active
-            buttonStyle = markStyle || 'bg-accent text-white shadow-md hover:bg-accent-light hover:shadow-lg';
-          } else {
-            // No candidate - show as inactive
-            buttonStyle = 'bg-paper text-grid/40 border border-grid/10 hover:bg-green-50 hover:text-green-600 hover:border-green-300';
-          }
+              if (cellHasValue) {
+                // Cell already has a value - disabled
+                buttonStyle = 'bg-grid/5 text-grid/20 cursor-not-allowed';
+                isClickable = false;
+              } else if (hasNote) {
+                // Has candidate - show as active
+                buttonStyle = markStyle || 'bg-accent text-white shadow-md hover:bg-accent-light hover:shadow-lg';
+              } else {
+                // No candidate - show as inactive
+                buttonStyle = 'bg-paper text-grid/40 border border-grid/10 hover:bg-green-50 hover:text-green-600 hover:border-green-300';
+              }
 
-          return (
-            <div key={num} className="relative">
-              <button
-                onClick={() => !wheelActivatedRef.current && isClickable && handleNumberClick(num)}
-                onTouchStart={(e) => handleTouchStart(num, e)}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                disabled={!isClickable}
-                className={`
-                  w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
-                  text-base sm:text-lg font-medium rounded-lg
-                  transition-all duration-100 touch-manipulation select-none
-                  ${buttonStyle}
-                  ${isSwiping ? 'scale-110 shadow-lg' : ''}
-                `}
-                title={hasNote ? 'Swipe up to mark' : 'Add candidate'}
-              >
-                {num}
-              </button>
-              {/* Mark indicator */}
-              {markIndicator && hasNote && (
-                <span className="absolute -top-1 -right-1 text-[8px] bg-white rounded-full w-3 h-3 flex items-center justify-center shadow border">
-                  {markIndicator}
-                </span>
-              )}
-            </div>
-          );
-        })}
+              return (
+                <div key={num} className="relative shrink-0">
+                  <button
+                    onClick={() => !wheelActivatedRef.current && isClickable && handleNumberClick(num)}
+                    onTouchStart={(e) => handleTouchStart(num, e)}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    disabled={!isClickable}
+                    className={`
+                      w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
+                      text-base sm:text-lg font-medium rounded-lg
+                      transition-all duration-100 touch-manipulation select-none
+                      ${buttonStyle}
+                      ${isSwiping ? 'scale-110 shadow-lg' : ''}
+                    `}
+                    title={hasNote ? 'Swipe up to mark' : 'Add candidate'}
+                  >
+                    {num}
+                  </button>
+                  {/* Mark indicator */}
+                  {markIndicator && hasNote && (
+                    <span className="absolute -top-1 -right-1 text-[8px] bg-white rounded-full w-3 h-3 flex items-center justify-center shadow border">
+                      {markIndicator}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
