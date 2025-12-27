@@ -189,7 +189,7 @@ function DraggableTreeCanvas({
   if (!currentNode) {
     return <div className="text-center text-grid/50 py-4">No history yet</div>;
   }
-  
+
   return (
     <div className="space-y-2">
       {/* Current state info */}
@@ -304,7 +304,7 @@ function DraggableTreeCanvas({
         {nodeCount} states
         {branchCount > 0 && ` · ${branchCount} branch${branchCount > 1 ? 'es' : ''}`}
         {' · '} Drag to pan · Tap node to restore
-      </div>
+        </div>
     </div>
   );
 }
@@ -479,8 +479,8 @@ export function BottomPanel() {
             currentNode={currentNode}
             nodeCount={nodeCount}
             branchCount={branchCount}
-            onRestore={restoreToNode}
-          />
+                onRestore={restoreToNode}
+              />
         )}
       </div>
     </div>

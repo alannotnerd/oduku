@@ -49,12 +49,12 @@ export function WinModal() {
         </p>
         
         <div className="space-y-3">
-          <button
-            onClick={() => newGame()}
-            className="w-full py-3 bg-accent text-white font-semibold rounded-xl shadow-lg hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
-          >
-            New Game
-          </button>
+        <button
+          onClick={() => newGame()}
+          className="w-full py-3 bg-accent text-white font-semibold rounded-xl shadow-lg hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
+        >
+          New Game
+        </button>
           
           <button
             onClick={() => setDismissed(true)}

@@ -336,55 +336,55 @@ export function NumberPad() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="flex items-center justify-start gap-1.5 min-w-max">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
-              const hasNote = !cellHasValue && selectedCell.notes.has(num);
-              const isSwiping = swipingNum === num;
-              const { style: markStyle, indicator: markIndicator } = getMarkStyle(num);
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
+          const hasNote = !cellHasValue && selectedCell.notes.has(num);
+          const isSwiping = swipingNum === num;
+          const { style: markStyle, indicator: markIndicator } = getMarkStyle(num);
 
-              // Determine button style based on state (unified for all modes)
-              let buttonStyle = '';
-              let isClickable = true;
+          // Determine button style based on state (unified for all modes)
+          let buttonStyle = '';
+          let isClickable = true;
 
-              if (cellHasValue) {
-                // Cell already has a value - disabled
-                buttonStyle = 'bg-grid/5 text-grid/20 cursor-not-allowed';
-                isClickable = false;
-              } else if (hasNote) {
-                // Has candidate - show as active
-                buttonStyle = markStyle || 'bg-accent text-white shadow-md hover:bg-accent-light hover:shadow-lg';
-              } else {
-                // No candidate - show as inactive
-                buttonStyle = 'bg-paper text-grid/40 border border-grid/10 hover:bg-green-50 hover:text-green-600 hover:border-green-300';
-              }
+          if (cellHasValue) {
+            // Cell already has a value - disabled
+            buttonStyle = 'bg-grid/5 text-grid/20 cursor-not-allowed';
+            isClickable = false;
+          } else if (hasNote) {
+            // Has candidate - show as active
+            buttonStyle = markStyle || 'bg-accent text-white shadow-md hover:bg-accent-light hover:shadow-lg';
+          } else {
+            // No candidate - show as inactive
+            buttonStyle = 'bg-paper text-grid/40 border border-grid/10 hover:bg-green-50 hover:text-green-600 hover:border-green-300';
+          }
 
-              return (
+          return (
                 <div key={num} className="relative shrink-0">
-                  <button
-                    onClick={() => !wheelActivatedRef.current && isClickable && handleNumberClick(num)}
-                    onTouchStart={(e) => handleTouchStart(num, e)}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    disabled={!isClickable}
-                    className={`
-                      w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
-                      text-base sm:text-lg font-medium rounded-lg
-                      transition-all duration-100 touch-manipulation select-none
-                      ${buttonStyle}
-                      ${isSwiping ? 'scale-110 shadow-lg' : ''}
-                    `}
-                    title={hasNote ? 'Swipe up to mark' : 'Add candidate'}
-                  >
-                    {num}
-                  </button>
-                  {/* Mark indicator */}
-                  {markIndicator && hasNote && (
-                    <span className="absolute -top-1 -right-1 text-[8px] bg-white rounded-full w-3 h-3 flex items-center justify-center shadow border">
-                      {markIndicator}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+              <button
+                onClick={() => !wheelActivatedRef.current && isClickable && handleNumberClick(num)}
+                onTouchStart={(e) => handleTouchStart(num, e)}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                disabled={!isClickable}
+                className={`
+                  w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
+                  text-base sm:text-lg font-medium rounded-lg
+                  transition-all duration-100 touch-manipulation select-none
+                  ${buttonStyle}
+                  ${isSwiping ? 'scale-110 shadow-lg' : ''}
+                `}
+                title={hasNote ? 'Swipe up to mark' : 'Add candidate'}
+              >
+                {num}
+              </button>
+              {/* Mark indicator */}
+              {markIndicator && hasNote && (
+                <span className="absolute -top-1 -right-1 text-[8px] bg-white rounded-full w-3 h-3 flex items-center justify-center shadow border">
+                  {markIndicator}
+                </span>
+              )}
+            </div>
+          );
+        })}
           </div>
         </div>
       </div>
