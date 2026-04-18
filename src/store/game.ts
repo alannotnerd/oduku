@@ -8,6 +8,8 @@ import {
   createGameBoard,
   updateConflicts,
   isSolved,
+  parseSudokuString,
+  solvePuzzle,
 } from '../lib/sudoku';
 import { 
   getHint, 
@@ -423,6 +425,72 @@ export const newGameAtom = atom(
     set(selectedCellBaseAtom, null);
     set(pendingCellEditAtom, null);
     set(noteModeAtom, false);
+  }
+);
+
+// Import puzzle from string
+export const importPuzzleAtom = atom(
+  null,
+  (_get, set, input: string) => {
+    const puzzle = parseSudokuString(input);
+    if (!puzzle) return false;
+
+    const solution = solvePuzzle(puzzle);
+    if (!solution) return false;
+
+    const board = createGameBoard(puzzle);
+
+    // Count clues
+    let clueCount = 0;
+    for (const row of puzzle) {
+      for (const cell of row) {
+        if (cell !== null) clueCount++;
+      }
+    }
+
+    // Infer difficulty from clue count
+    let difficulty: Difficulty = 'medium';
+    if (clueCount >= 36) difficulty = 'easy';
+    else if (clueCount >= 30) difficulty = 'medium';
+    else if (clueCount >= 26) difficulty = 'hard';
+    else if (clueCount >= 22) difficulty = 'expert';
+    else difficulty = 'master';
+
+    const rootId = generateId();
+    const rootNode: HistoryNode = {
+      id: rootId,
+      board: cloneBoard(board),
+      moveCount: 0,
+      timestamp: Date.now(),
+      description: 'Import',
+      parentId: null,
+      childrenIds: [],
+      filledCount: countFilled(board),
+    };
+
+    set(gameStateAtom, {
+      board,
+      solution,
+      startTime: Date.now(),
+      isComplete: false,
+      moveCount: 0,
+      difficulty,
+      difficultyScore: (81 - clueCount) * 10,
+      strategies: [],
+    });
+
+    set(historyTreeAtom, {
+      nodes: { [rootId]: rootNode },
+      currentNodeId: rootId,
+      rootId,
+    });
+
+    set(historyAtom, []);
+    set(selectedCellBaseAtom, null);
+    set(pendingCellEditAtom, null);
+    set(noteModeAtom, false);
+
+    return true;
   }
 );
 

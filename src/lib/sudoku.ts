@@ -577,3 +577,44 @@ export function solvePuzzle(board: Board): Board | null {
 export function gameBoardToBoard(gameBoard: GameBoard): Board {
   return gameBoard.map(row => row.map(cell => cell.value));
 }
+
+/**
+ * Parse a Sudoku string into a Board.
+ * Accepts 81-character strings where 1-9 are clues and 0 or . are empty cells.
+ * Whitespace and newlines are stripped before parsing.
+ * Returns null if the input is invalid or the puzzle has no unique solution.
+ */
+export function parseSudokuString(input: string): Board | null {
+  // Strip whitespace
+  const cleaned = input.replace(/\s/g, '');
+
+  if (cleaned.length !== 81) return null;
+  if (!/^[0-9.]+$/.test(cleaned)) return null;
+
+  const board: Board = [];
+  for (let row = 0; row < 9; row++) {
+    board.push([]);
+    for (let col = 0; col < 9; col++) {
+      const ch = cleaned[row * 9 + col];
+      board[row].push(ch === '0' || ch === '.' ? null : parseInt(ch));
+    }
+  }
+
+  // Validate: no duplicate values in any row, column, or box
+  for (let i = 0; i < 81; i++) {
+    const r = Math.floor(i / 9);
+    const c = i % 9;
+    const val = board[r][c];
+    if (val === null) continue;
+    for (const peer of PEERS[i]) {
+      const pr = Math.floor(peer / 9);
+      const pc = peer % 9;
+      if (board[pr][pc] === val) return null; // Duplicate in peers
+    }
+  }
+
+  // Must have exactly one solution
+  if (countSolutions(board, 2) !== 1) return null;
+
+  return board;
+}

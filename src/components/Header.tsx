@@ -1,12 +1,13 @@
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { 
-  difficultyAtom, 
-  newGameAtom, 
+import {
+  difficultyAtom,
+  newGameAtom,
   gameStateAtom,
   showHintAtom,
   type Difficulty,
 } from '../store/game';
+import { ImportModal } from './ImportModal';
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard', 'expert', 'master'];
 
@@ -26,6 +27,7 @@ export function Header() {
   const [elapsed, setElapsed] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     if (gameState.isComplete || gameState.board.length === 0) return;
@@ -116,6 +118,18 @@ export function Header() {
             )}
           </div>
 
+          {/* Import button */}
+          <button
+            onClick={() => setShowImport(true)}
+            className="p-2 bg-highlight text-grid rounded-lg hover:bg-grid/10 active:scale-95 transition-all touch-manipulation"
+            aria-label="Import Puzzle"
+            title="Import puzzle"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </button>
+
           {/* New game button */}
           <button
             onClick={() => newGame()}
@@ -151,6 +165,7 @@ export function Header() {
           </div>
         </>
       )}
+      <ImportModal open={showImport} onClose={() => setShowImport(false)} />
     </header>
   );
 }
