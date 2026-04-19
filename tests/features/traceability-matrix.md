@@ -41,6 +41,31 @@
 | no-congratulation-modal.feature | Further cell-input attempts after completion are ignored and do not reveal a modal | SPEC-010 |
 | no-congratulation-modal.feature | Starting a new game via the header works after completion | SPEC-010, SPEC-008 |
 | no-congratulation-modal.feature | The WinModal component is absent from the codebase | SPEC-010 |
+| header-relayout.feature | Primary actions are reachable without opening the drawer | SPEC-011 |
+| header-relayout.feature | Tapping the explicit hint button opens the hint panel | SPEC-011 |
+| header-relayout.feature | The cryptic score-badge easter egg is removed | SPEC-011 |
+| header-relayout.feature | Tapping new-game still triggers the loading overlay | SPEC-011, SPEC-008 |
+| header-relayout.feature | The difficulty indicator is informational only | SPEC-011 |
+| header-relayout.feature | The hint button is disabled when no puzzle is loaded | SPEC-011 |
+| header-relayout.feature | The hint button is disabled when the puzzle is complete | SPEC-011, SPEC-010 |
+| header-relayout.feature | The hamburger trigger's aria-expanded reflects the drawer state | SPEC-011, SPEC-012 |
+| header-relayout.feature | The inline "Techniques Required" panel no longer appears in the header | SPEC-011 |
+| header-relayout.feature | Tapping the title does nothing | SPEC-011 |
+| settings-drawer.feature | Tapping the hamburger opens the drawer from the right edge | SPEC-012, SPEC-011 |
+| settings-drawer.feature | Tapping the scrim closes the drawer | SPEC-012 |
+| settings-drawer.feature | Tapping the dedicated close button closes the drawer | SPEC-012 |
+| settings-drawer.feature | Pressing Escape while the drawer is open closes the drawer | SPEC-012 |
+| settings-drawer.feature | Choosing a different difficulty writes the atom and closes the drawer | SPEC-012 |
+| settings-drawer.feature | Choosing the currently selected difficulty still closes the drawer | SPEC-012 |
+| settings-drawer.feature | The currently selected difficulty is visually distinguished | SPEC-012 |
+| settings-drawer.feature | Import opens the existing ImportModal and closes the drawer | SPEC-012 |
+| settings-drawer.feature | Puzzle details show the difficulty score and technique breakdown | SPEC-012 |
+| settings-drawer.feature | Puzzle details show a placeholder when no puzzle is loaded | SPEC-012 |
+| settings-drawer.feature | Puzzle details handle imported puzzles with no strategy breakdown | SPEC-012 |
+| settings-drawer.feature | The drawer cooperates with the global gesture listener | SPEC-012, SPEC-005, SPEC-007 |
+| settings-drawer.feature | The drawer closes cleanly and is removed from the DOM | SPEC-012 |
+| settings-drawer.feature | No new Jotai atom is used for drawer state | SPEC-012 |
+| settings-drawer.feature | No new external dependency is added | SPEC-011, SPEC-012 |
 
 ## Coverage by spec unit
 
@@ -50,11 +75,13 @@
 | SPEC-002 | critical | yes (4 scenarios) |
 | SPEC-003 | critical | yes (3 scenarios) |
 | SPEC-004 | critical | yes (4 scenarios) |
-| SPEC-005 | critical | yes (5 scenarios) |
+| SPEC-005 | critical | yes (6 scenarios) |
 | SPEC-006 | critical | yes (4 scenarios) |
-| SPEC-007 | standard | yes (3 scenarios) |
-| SPEC-008 | critical | yes (10 scenarios) |
+| SPEC-007 | standard | yes (4 scenarios) |
+| SPEC-008 | critical | yes (11 scenarios) |
 | SPEC-009 | standard | yes (3 scenarios) |
-| SPEC-010 | critical | yes (5 scenarios) |
+| SPEC-010 | critical | yes (6 scenarios) |
+| SPEC-011 | critical | yes (10 scenarios) |
+| SPEC-012 | critical | yes (15 scenarios) |
 
 Every critical unit has at least one scenario. No orphan scenarios.

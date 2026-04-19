@@ -6,6 +6,7 @@ Scope: Three independent concerns so far.
 - **SPEC-008 — Puzzle Generation Feedback**: Visible loading indicator while puzzle generation/import is in progress, with a mandatory main-thread yield so the indicator actually paints before the synchronous generator blocks.
 - **SPEC-009 — NumberPad info box content**: The fixed-width info box on the left of the NumberPad always displays the selected cell's location (`R{row+1}C{col+1}`), never the cell's value.
 - **SPEC-010 — No congratulation modal on completion**: On puzzle completion, no modal/dialog/banner announcing the win is rendered. Completion-driven side effects (timer freeze, input disabling) remain unchanged.
+- **SPEC-011..012 — Header re-layout and settings drawer**: Primary gameplay controls (timer, explicit hint, new-game, menu trigger) remain always visible in the header. Secondary/infrequent controls (difficulty selection, import, puzzle-details / techniques-required) move into a right-edge drawer. The cryptic `★{score}` easter-egg that used to trigger hint is replaced with an explicit labeled hint button.
 
 | ID | Title | Category | Priority | File |
 |----|-------|----------|----------|------|
@@ -19,8 +20,10 @@ Scope: Three independent concerns so far.
 | SPEC-008 | Puzzle generation loading feedback | behavior | critical | units/spec-008-puzzle-generation-loading-feedback.md |
 | SPEC-009 | NumberPad info box always shows cell location | behavior | standard | units/spec-009-numberpad-info-box-shows-location.md |
 | SPEC-010 | No congratulation modal on puzzle completion | behavior | critical | units/spec-010-no-congratulation-modal.md |
+| SPEC-011 | Header re-layout with explicit primary actions | behavior | critical | units/spec-011-header-relayout.md |
+| SPEC-012 | Settings drawer for secondary and infrequent actions | behavior | critical | units/spec-012-settings-drawer.md |
 
-Status: SPEC-001..007 IMPLEMENTED. SPEC-008 IMPLEMENTED. SPEC-009 IMPLEMENTED. SPEC-010 IMPLEMENTED. Gates 1, 2, 3 passed for all units.
+Status: SPEC-001..007 IMPLEMENTED. SPEC-008 IMPLEMENTED. SPEC-009 IMPLEMENTED. SPEC-010 IMPLEMENTED. SPEC-011..012 IMPLEMENTED. Gates 1, 2, 3 passed for all units.
 
 ## Implementation Traceability
 
@@ -36,4 +39,6 @@ Status: SPEC-001..007 IMPLEMENTED. SPEC-008 IMPLEMENTED. SPEC-009 IMPLEMENTED. S
 | SPEC-008 | `src/store/game.ts` (`isGeneratingAtom`, yield + `try/finally` in `newGameAtom` and `importPuzzleAtom`); `src/components/LoadingOverlay.tsx`; `src/App.tsx` (mount) |
 | SPEC-009 | `src/components/NumberPad.tsx` (info box renders `R{row+1}C{col+1}` unconditionally when the candidate preview bar is visible) |
 | SPEC-010 | `src/App.tsx` (removed `WinModal` import and `<WinModal />` mount); `src/components/WinModal.tsx` deleted |
+| SPEC-011 | `src/components/Header.tsx` (rewritten: difficulty indicator, explicit hint button, new-game button, hamburger trigger; easter-egg score button and inline strategies panel removed) |
+| SPEC-012 | `src/components/SettingsDrawer.tsx` (new drawer component with difficulty/puzzle/puzzle-details sections); `src/components/Header.tsx` (drawer state ownership, scrim, Escape handler, ImportModal relocation) |
 

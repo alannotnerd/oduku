@@ -1,4 +1,22 @@
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
+/*
+ * Header — primary-action-only layout.
+ *
+ * Traces to:
+ *   SPEC-011 (header re-layout: title + difficulty indicator on the left;
+ *             timer, explicit hint button, new-game button, hamburger trigger
+ *             on the right; easter-egg score button and inline strategies
+ *             panel removed; difficulty dropdown and import button moved out
+ *             into the drawer)
+ *   SPEC-012 (owns drawerOpen/importOpen useState; renders <SettingsDrawer />
+ *             and <ImportModal />; the hamburger's aria-expanded tracks
+ *             drawerOpen)
+ *   SPEC-008 (new-game button continues to fire newGameAtom which triggers
+ *             LoadingOverlay)
+ *   SPEC-010 (no congratulation modal — unchanged; timer freeze on
+ *             isComplete preserved)
+ */
+
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import {
   difficultyAtom,
@@ -8,9 +26,9 @@ import {
   type Difficulty,
 } from '../store/game';
 import { ImportModal } from './ImportModal';
+import { SettingsDrawer } from './SettingsDrawer';
 
-const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard', 'expert', 'master'];
-
+// Traces to: SPEC-011. Difficulty indicator label mapping.
 const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Easy',
   medium: 'Medium',
@@ -20,18 +38,24 @@ const difficultyLabels: Record<Difficulty, string> = {
 };
 
 export function Header() {
-  const [difficulty, setDifficulty] = useAtom(difficultyAtom);
+  // Traces to: SPEC-011. Read-only reads of difficulty and game state; write
+  // via newGameAtom and showHintAtom. Difficulty writes now live in the drawer.
+  const difficulty = useAtomValue(difficultyAtom);
   const newGame = useSetAtom(newGameAtom);
   const showHint = useSetAtom(showHintAtom);
   const gameState = useAtomValue(gameStateAtom);
   const [elapsed, setElapsed] = useState(0);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [showImport, setShowImport] = useState(false);
+  // Traces to: SPEC-012. Drawer open/close state — local useState, no atom.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  // Traces to: SPEC-012. ImportModal open state — still owned by Header, so
+  // the drawer can request it via onOpenImport prop.
+  const [importOpen, setImportOpen] = useState(false);
 
+  // Traces to: SPEC-011. Timer interval — unchanged from prior behavior;
+  // gated on isComplete and empty board (SPEC-010 preserves this freeze).
   useEffect(() => {
     if (gameState.isComplete || gameState.board.length === 0) return;
-    
+
     const interval = setInterval(() => {
       setElapsed(Math.floor((Date.now() - gameState.startTime) / 1000));
     }, 1000);
@@ -45,92 +69,33 @@ export function Header() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleDifficultyChange = (d: Difficulty) => {
-    setDifficulty(d);
-    setShowMenu(false);
-  };
+  // Traces to: SPEC-011. Hint button is disabled when no puzzle or complete.
+  const hintDisabled = gameState.isComplete || gameState.board.length === 0;
 
   return (
     <header className="w-full max-w-[min(90vw,400px)] mx-auto py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-ink tracking-tight">
-            Sudoku
-          </h1>
-          {/* Difficulty Score Badge - Easter egg: triggers hint! */}
-          {gameState.difficultyScore > 0 && (
-            <button
-              onClick={() => {
-                // Easter egg: click to show hint, long press for info
-                showHint();
-              }}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                setShowInfo(!showInfo);
-              }}
-              className="px-2 py-0.5 text-xs font-mono bg-accent/10 text-accent rounded-full touch-manipulation hover:bg-accent/20 active:scale-95 transition-all"
-              title="💡 Click for hint!"
-            >
-              ★{Math.round(gameState.difficultyScore)}
-            </button>
-          )}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        {/* Left: title + informational difficulty pill. */}
+        <div className="flex items-center gap-2 min-w-0 justify-self-start">
+          <h1 className="text-2xl font-bold text-ink tracking-tight">Sudoku</h1>
+          <span className="px-2 py-0.5 text-xs font-medium bg-highlight text-grid rounded-full">
+            {difficultyLabels[difficulty] || 'Medium'}
+          </span>
         </div>
-        
-        <div className="flex items-center gap-3">
-          {/* Timer */}
-          <div className="font-mono text-lg text-grid tabular-nums">
-            {formatTime(elapsed)}
-          </div>
-          
-          {/* Difficulty selector */}
-          <div className="relative">
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-highlight rounded-lg text-sm font-medium text-grid touch-manipulation"
-            >
-              {difficultyLabels[difficulty] || 'Medium'}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            {showMenu && (
-              <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setShowMenu(false)}
-                />
-                <div className="absolute right-0 top-full mt-1 bg-paper border border-grid/20 rounded-lg shadow-lg overflow-hidden z-20">
-                  {DIFFICULTIES.map(d => (
-                    <button
-                      key={d}
-                      onClick={() => handleDifficultyChange(d)}
-                      className={`
-                        block w-full px-4 py-2 text-left text-sm
-                        ${d === difficulty ? 'bg-accent text-white' : 'hover:bg-highlight'}
-                      `}
-                    >
-                      {difficultyLabels[d]}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
 
-          {/* Import button */}
-          <button
-            onClick={() => setShowImport(true)}
-            className="p-2 bg-highlight text-grid rounded-lg hover:bg-grid/10 active:scale-95 transition-all touch-manipulation"
-            aria-label="Import Puzzle"
-            title="Import puzzle"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-          </button>
+        {/* Center: timer doubles as the hint trigger. */}
+        <button
+          onClick={() => showHint()}
+          disabled={hintDisabled}
+          aria-label="Hint"
+          title="Tap for a hint"
+          className="justify-self-center font-mono text-lg text-grid tabular-nums px-3 py-1 rounded-lg hover:bg-highlight active:scale-95 transition-all touch-manipulation disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {formatTime(elapsed)}
+        </button>
 
-          {/* New game button */}
+        {/* Right: new-game + hamburger. */}
+        <div className="flex items-center gap-2 justify-self-end">
           <button
             onClick={() => newGame()}
             className="p-2 bg-accent text-white rounded-lg shadow-md hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
@@ -140,32 +105,29 @@ export function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
+
+          <button
+            onClick={() => setDrawerOpen((prev) => !prev)}
+            aria-label="Open settings"
+            aria-haspopup="dialog"
+            aria-expanded={drawerOpen}
+            className="p-2 bg-highlight text-grid rounded-lg active:scale-95 transition-all touch-manipulation"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Strategy Info Panel */}
-      {showInfo && gameState.strategies.length > 0 && (
-        <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setShowInfo(false)}
-          />
-          <div className="mt-2 p-3 bg-highlight/80 backdrop-blur rounded-lg text-sm relative z-20">
-            <div className="font-medium text-grid mb-2">Techniques Required:</div>
-            <div className="flex flex-wrap gap-1">
-              {gameState.strategies.map(s => (
-                <span 
-                  key={s.title}
-                  className="px-2 py-0.5 bg-paper rounded text-xs text-grid/80"
-                >
-                  {s.title} ×{s.freq}
-                </span>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-      <ImportModal open={showImport} onClose={() => setShowImport(false)} />
+      {/* Traces to: SPEC-012. Drawer and modal — rendered inside the header
+          React subtree so a single component owns both states. */}
+      <SettingsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onOpenImport={() => setImportOpen(true)}
+      />
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
     </header>
   );
 }

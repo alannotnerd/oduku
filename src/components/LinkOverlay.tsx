@@ -96,9 +96,12 @@ export function LinkOverlay() {
       .map(({ link }) => link);
   }, [hintLinks, manualLinks, gameState.board, hiddenIndices]);
 
-  // Only show links when showLinks is true and in reason mode or have hint links
+  // Only show links when showLinks is true and in reason mode or have hint links.
+  // `links` must be memoized: the effect below depends on it, and returning a
+  // fresh [] each render when shouldShow is false would retrigger the effect,
+  // which calls setCellRects(new Map()), causing an infinite update loop.
   const shouldShow = showLinks && (panelMode === 'reason' || hintLinks.length > 0);
-  const links = shouldShow ? allLinks : [];
+  const links = useMemo(() => (shouldShow ? allLinks : []), [shouldShow, allLinks]);
 
   // Calculate cell positions when links change
   useEffect(() => {

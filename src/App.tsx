@@ -46,15 +46,14 @@ function App() {
     <div className="flex flex-col min-h-[100dvh] px-4 pb-safe" data-touch-handled>
       <Header />
       
-      <main className="flex-1 flex flex-col justify-center gap-4 py-4">
+      {/* Board + NumberPad are pinned to the top of <main> so they never
+          shift when BottomPanel's content height changes (e.g., switching
+          between the Reason tab and History tab's 200px tree canvas). */}
+      <main className="flex-1 flex flex-col gap-4 py-4 min-h-0">
         <Board />
         <NumberPad />
         <BottomPanel />
       </main>
-
-      <footer className="text-center text-xs text-grid/50 py-3">
-        <p>Sudoku · Mobile First</p>
-      </footer>
 
       <HintPanel />
       {/* Traces to: SPEC-008, SPEC-010. Overlay is mounted for the app lifetime

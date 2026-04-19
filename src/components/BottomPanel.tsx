@@ -192,18 +192,20 @@ function DraggableTreeCanvas({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2 h-full">
       {/* Current state info */}
-      <div className="px-3 py-2 bg-accent/10 rounded-lg flex items-center justify-between">
+      <div className="shrink-0 px-3 py-2 bg-accent/10 rounded-lg flex items-center justify-between">
         <span className="font-mono text-xs text-ink">{currentNode.description}</span>
         <span className="text-accent font-bold text-sm">{currentNode.filledCount}/81</span>
       </div>
-      
-      {/* Tree canvas. Traces to: SPEC-005. data-touch-handled ensures the
-          global touchmove listener does not preempt this panel's drag. */}
+
+      {/* Tree canvas. Fills remaining vertical space so the history panel
+          adapts to whatever room is left below the NumberPad. Traces to:
+          SPEC-005. data-touch-handled ensures the global touchmove listener
+          does not preempt this panel's drag. */}
       <div
         ref={containerRef}
-        className="relative h-[200px] bg-paper border border-grid/10 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
+        className="relative flex-1 min-h-[120px] bg-paper border border-grid/10 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -303,7 +305,7 @@ function DraggableTreeCanvas({
       </div>
       
       {/* Stats */}
-      <div className="text-center text-[10px] text-grid/40">
+      <div className="shrink-0 text-center text-[10px] text-grid/40">
         {nodeCount} states
         {branchCount > 0 && ` · ${branchCount} branch${branchCount > 1 ? 'es' : ''}`}
         {' · '} Drag to pan · Tap node to restore
@@ -373,9 +375,9 @@ export function BottomPanel() {
   ];
 
   return (
-    <div className="w-full max-w-[min(90vw,400px)] mx-auto mt-4 space-y-3">
+    <div className="w-full max-w-[min(90vw,400px)] mx-auto flex-1 min-h-0 flex flex-col gap-3">
       {/* Mode Tabs */}
-      <div className="flex bg-highlight/50 rounded-xl p-1">
+      <div className="shrink-0 flex bg-highlight/50 rounded-xl p-1">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -402,8 +404,10 @@ export function BottomPanel() {
         ))}
       </div>
 
-      {/* Panel Content */}
-      <div className="min-h-[80px]">
+      {/* Panel Content fills the remaining vertical space. Reason mode
+          scrolls when link badges overflow; History mode lets the tree
+          canvas absorb the available height via its internal flex-1. */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {/* Reason Mode - Link Badges */}
         {panelMode === 'reason' && (
           <div className="space-y-3">
