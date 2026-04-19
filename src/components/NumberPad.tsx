@@ -359,12 +359,15 @@ export function NumberPad() {
 
           return (
                 <div key={num} className="relative shrink-0">
+              {/* Traces to: SPEC-005. data-touch-handled signals the global
+                  touchmove listener to leave this element's swipe gesture alone. */}
               <button
                 onClick={() => !wheelActivatedRef.current && isClickable && handleNumberClick(num)}
                 onTouchStart={(e) => handleTouchStart(num, e)}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 disabled={!isClickable}
+                data-touch-handled
                 className={`
                   w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
                   text-base sm:text-lg font-medium rounded-lg

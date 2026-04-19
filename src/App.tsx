@@ -41,7 +41,9 @@ function App() {
   }, [selected, setCellValue, clearCell]);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] px-4 pb-safe">
+    // Traces to: SPEC-005. The whole game surface opts out of the global
+    // touchmove preventDefault so in-app handlers receive events normally.
+    <div className="flex flex-col min-h-[100dvh] px-4 pb-safe" data-touch-handled>
       <Header />
       
       <main className="flex-1 flex flex-col justify-center gap-4 py-4">

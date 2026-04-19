@@ -14,31 +14,64 @@
   --color-fixed: #2d3436;
   --color-user: #0984e3;
   --color-notes: #636e72;
-  
+
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', monospace;
 }
 
-/* Global styles */
+/*
+ * Gesture & scroll lockdown.
+ * Traces to: SPEC-001 (disable page scroll), SPEC-002 (disable overscroll/bounce),
+ * SPEC-003 (pull-to-refresh – CSS layer), SPEC-004 (navigation gestures & long-press callouts).
+ *
+ * html/body are the scrolling root. We lock them:
+ *   - overflow: hidden on both axes (SPEC-001)
+ *   - 100% width/height so content cannot exceed viewport (SPEC-001)
+ *   - position: fixed on body as belt-and-braces for iOS rubber-band (SPEC-002)
+ *   - overscroll-behavior: none (SPEC-002, SPEC-003)
+ *   - touch-action: none on the root app container (SPEC-004): no pan/pinch at document level
+ *   - user-select / -webkit-touch-callout: none to kill long-press selection (SPEC-004)
+ */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 html {
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
-  min-height: 100dvh;
-  margin: 0;
-  overscroll-behavior: none;
+  /* position: fixed prevents the iOS viewport from being dragged at all. */
+  position: fixed;
+  inset: 0;
+  /* Kill the long-press / text-selection callouts that invite gesture hijacking. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #root {
-  min-height: 100dvh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  /* SPEC-004: suppress all browser-handled touch panning at the root.
+   * Components that own their own gestures re-enable by setting their own
+   * touch-action (e.g. touch-action: none on the BottomPanel draggable).
+   * Components that only need taps inherit touch-action: none which still
+   * permits click synthesis via pointer events. */
+  touch-action: none;
 }
 
 /* Prevent zoom on input focus for iOS */
@@ -46,4 +79,18 @@ body {
   input, select, textarea {
     font-size: 16px;
   }
+}
+
+/*
+ * SPEC-007: Scoped scroll escape hatch.
+ * A sub-region that genuinely needs to scroll MUST carry both the
+ * .scroll-allowed class AND the data-scroll-allowed attribute. The
+ * attribute is what the global touchmove listener looks for; the class
+ * is what provides the overflow + overscroll containment.
+ */
+.scroll-allowed {
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: auto;
 }

@@ -44,53 +44,54 @@ function calculateTreeLayout(
   const positions: NodePosition[] = [];
   const edges: Array<{ from: NodePosition; to: NodePosition }> = [];
   
-  // Calculate subtree width for each node
-  const subtreeWidths = new Map<string, number>();
-  
-  function calcWidth(nodeId: string): number {
+  // LR layout: depth is horizontal (x), siblings stack vertically (y).
+  // subtreeSpans track the vertical lane count each subtree needs.
+  const subtreeSpans = new Map<string, number>();
+
+  function calcSpan(nodeId: string): number {
     const node = nodes[nodeId];
     if (!node) return 0;
-    
+
     if (node.childrenIds.length === 0) {
-      subtreeWidths.set(nodeId, 1);
+      subtreeSpans.set(nodeId, 1);
       return 1;
     }
-    
-    let totalWidth = 0;
+
+    let totalSpan = 0;
     for (const childId of node.childrenIds) {
-      totalWidth += calcWidth(childId);
+      totalSpan += calcSpan(childId);
     }
-    subtreeWidths.set(nodeId, totalWidth);
-    return totalWidth;
+    subtreeSpans.set(nodeId, totalSpan);
+    return totalSpan;
   }
-  
-  calcWidth(rootId);
-  
+
+  calcSpan(rootId);
+
   // Position nodes
-  function positionNode(nodeId: string, depth: number, leftOffset: number): NodePosition | null {
+  function positionNode(nodeId: string, depth: number, topOffset: number): NodePosition | null {
     const node = nodes[nodeId];
     if (!node) return null;
-    
-    const subtreeWidth = subtreeWidths.get(nodeId) || 1;
-    const x = CANVAS_PADDING + (leftOffset + subtreeWidth / 2) * NODE_GAP_X;
-    const y = CANVAS_PADDING + depth * NODE_GAP_Y;
-    
+
+    const subtreeSpan = subtreeSpans.get(nodeId) || 1;
+    const x = CANVAS_PADDING + depth * NODE_GAP_X;
+    const y = CANVAS_PADDING + (topOffset + subtreeSpan / 2) * NODE_GAP_Y;
+
     const pos: NodePosition = { id: nodeId, x, y, node };
     positions.push(pos);
-    
+
     // Position children
-    let childOffset = leftOffset;
+    let childOffset = topOffset;
     for (const childId of node.childrenIds) {
       const childPos = positionNode(childId, depth + 1, childOffset);
       if (childPos) {
         edges.push({ from: pos, to: childPos });
-        childOffset += subtreeWidths.get(childId) || 1;
+        childOffset += subtreeSpans.get(childId) || 1;
       }
     }
-    
+
     return pos;
   }
-  
+
   positionNode(rootId, 0, 0);
   
   // Calculate canvas size
@@ -198,14 +199,16 @@ function DraggableTreeCanvas({
         <span className="text-accent font-bold text-sm">{currentNode.filledCount}/81</span>
       </div>
       
-      {/* Tree canvas */}
-      <div 
+      {/* Tree canvas. Traces to: SPEC-005. data-touch-handled ensures the
+          global touchmove listener does not preempt this panel's drag. */}
+      <div
         ref={containerRef}
         className="relative h-[200px] bg-paper border border-grid/10 rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
+        data-touch-handled
         style={{ touchAction: 'none' }}
       >
         <svg
@@ -217,14 +220,14 @@ function DraggableTreeCanvas({
           }}
           className="absolute"
         >
-          {/* Edges */}
+          {/* Edges (LR: parent right edge → child left edge) */}
           {layout.edges.map((edge, idx) => (
             <line
               key={idx}
-              x1={edge.from.x}
-              y1={edge.from.y + NODE_RADIUS}
-              x2={edge.to.x}
-              y2={edge.to.y - NODE_RADIUS}
+              x1={edge.from.x + NODE_RADIUS}
+              y1={edge.from.y}
+              x2={edge.to.x - NODE_RADIUS}
+              y2={edge.to.y}
               stroke="#dfe6e9"
               strokeWidth={2}
             />
