@@ -277,51 +277,9 @@ class SudokuSolver {
 }
 
 /**
- * Generate a random solved Sudoku grid
+ * Count solutions (up to limit). Used by parse-validation and the local generator.
  */
-function generateSolvedGrid(): Board {
-  const grid = new Array(81).fill(0);
-  
-  // Fill diagonal boxes first (they don't affect each other)
-  for (let box = 0; box < 3; box++) {
-    const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    shuffle(nums);
-    
-    let idx = 0;
-    const startRow = box * 3;
-    const startCol = box * 3;
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        grid[(startRow + r) * 9 + (startCol + c)] = nums[idx++];
-      }
-    }
-  }
-  
-  // Convert to board and solve to fill rest
-  const partial: Board = [];
-  for (let row = 0; row < 9; row++) {
-    partial.push([]);
-    for (let col = 0; col < 9; col++) {
-      const val = grid[row * 9 + col];
-      partial[row].push(val === 0 ? null : val);
-    }
-  }
-  
-  const solver = new SudokuSolver(partial);
-  return solver.solve() || partial;
-}
-
-function shuffle<T>(array: T[]): void {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-/**
- * Count solutions (up to limit)
- */
-function countSolutions(board: Board, limit: number = 2): number {
+export function countSolutions(board: Board, limit: number = 2): number {
   const grid: number[] = [];
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
@@ -368,115 +326,6 @@ function countSolutions(board: Board, limit: number = 2): number {
   
   solve(0);
   return count;
-}
-
-/**
- * Remove cells from solved grid to create puzzle
- */
-function createPuzzle(solved: Board, difficulty: Difficulty): Board {
-  const puzzle: Board = solved.map(row => [...row]);
-  
-  // Difficulty determines how many cells to remove and which techniques are needed
-  const targetClues: Record<Difficulty, [number, number]> = {
-    easy: [36, 42],
-    medium: [30, 36],
-    hard: [26, 30],
-    expert: [22, 26],
-    master: [17, 22],
-  };
-  
-  const [minClues, maxClues] = targetClues[difficulty];
-  const targetClueCount = minClues + Math.floor(Math.random() * (maxClues - minClues + 1));
-  
-  // Create list of cell indices and shuffle
-  const cells = Array.from({ length: 81 }, (_, i) => i);
-  shuffle(cells);
-  
-  let clueCount = 81;
-  
-  for (const cell of cells) {
-    if (clueCount <= targetClueCount) break;
-    
-    const row = Math.floor(cell / 9);
-    const col = cell % 9;
-    
-    if (puzzle[row][col] === null) continue;
-    
-    const saved = puzzle[row][col];
-    puzzle[row][col] = null;
-    
-    // Check if still has unique solution
-    if (countSolutions(puzzle, 2) !== 1) {
-      // Restore - removing this cell creates multiple solutions
-      puzzle[row][col] = saved;
-    } else {
-      clueCount--;
-    }
-  }
-  
-  return puzzle;
-}
-
-export interface PuzzleResult {
-  puzzle: Board;
-  solution: Board;
-  difficulty: Difficulty;
-  difficultyScore: number;
-  strategies: Array<{ title: string; freq: number }>;
-}
-
-/**
- * Generate a new puzzle
- */
-export function generatePuzzle(difficulty: Difficulty = 'medium'): PuzzleResult {
-  const solution = generateSolvedGrid();
-  const puzzle = createPuzzle(solution, difficulty);
-  
-  // Calculate difficulty score based on clue count and techniques needed
-  let clueCount = 0;
-  for (const row of puzzle) {
-    for (const cell of row) {
-      if (cell !== null) clueCount++;
-    }
-  }
-  
-  // Simple scoring: fewer clues = higher score
-  const baseScore = (81 - clueCount) * 10;
-  const difficultyMultiplier: Record<Difficulty, number> = {
-    easy: 1,
-    medium: 2,
-    hard: 4,
-    expert: 8,
-    master: 16,
-  };
-  
-  const score = baseScore * difficultyMultiplier[difficulty];
-  
-  // Analyze techniques (simplified)
-  const strategies: Array<{ title: string; freq: number }> = [];
-  if (clueCount >= 36) {
-    strategies.push({ title: 'Naked Single', freq: 81 - clueCount });
-  } else if (clueCount >= 30) {
-    strategies.push({ title: 'Naked Single', freq: Math.floor((81 - clueCount) * 0.6) });
-    strategies.push({ title: 'Hidden Single', freq: Math.floor((81 - clueCount) * 0.4) });
-  } else if (clueCount >= 26) {
-    strategies.push({ title: 'Naked Single', freq: Math.floor((81 - clueCount) * 0.4) });
-    strategies.push({ title: 'Hidden Single', freq: Math.floor((81 - clueCount) * 0.4) });
-    strategies.push({ title: 'Pointing Pair', freq: Math.floor((81 - clueCount) * 0.2) });
-  } else {
-    strategies.push({ title: 'Naked Single', freq: Math.floor((81 - clueCount) * 0.3) });
-    strategies.push({ title: 'Hidden Single', freq: Math.floor((81 - clueCount) * 0.3) });
-    strategies.push({ title: 'Naked Pair', freq: Math.floor((81 - clueCount) * 0.2) });
-    strategies.push({ title: 'X-Wing', freq: Math.floor((81 - clueCount) * 0.2) });
-  }
-  
-  return {
-    puzzle,
-    solution,
-    difficulty,
-    difficultyScore: score,
-    strategies,
-  };
 }
 
 /**

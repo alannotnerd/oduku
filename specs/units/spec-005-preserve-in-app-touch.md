@@ -22,7 +22,7 @@
 - Components that implement their own swipe gestures MUST call `event.preventDefault()` in their `onTouchStart`/`onTouchMove` (already done in `NumberPad.tsx`) to signal to the browser that they consume the touch.
 
 ## Postconditions
-- All regression scenarios for `Cell`, `NumberPad`, `BottomPanel`, `Header`, `HintPanel`, `WinModal`, `ImportModal` pass.
+- All regression scenarios for `Cell`, `NumberPad`, `BottomPanel`, `Header`, `HintPanel`, `ImportModal` pass. (`WinModal` was removed per SPEC-010 and is no longer part of this surface.)
 - No touch input is blocked by the lockdown layer.
 
 ## Invariants

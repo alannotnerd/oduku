@@ -4,22 +4,17 @@ import {
   type GameBoard,
   type Difficulty,
   type Board,
-  generatePuzzle,
   createGameBoard,
   updateConflicts,
   isSolved,
   parseSudokuString,
-  solvePuzzle,
 } from '../lib/sudoku';
-import { 
-  getHint, 
-  type HintStep,
-  type CandidateLink,
-} from '../lib/solver';
+import { activeProvider } from '../lib/providers';
+import type { HintStep, CandidateLink } from '../lib/providers';
 
 // Re-export for convenience
 export { type Difficulty } from '../lib/sudoku';
-export type { HintStep, CandidateLink } from '../lib/solver';
+export type { HintStep, CandidateLink } from '../lib/providers';
 
 // Selected cell position (raw, without auto-commit logic)
 const selectedCellBaseAtom = atom<[number, number] | null>(null);
@@ -285,6 +280,12 @@ export const historyAtom = atom<HistoryEntry[]>([]);
 // Derived atom for timer display
 export const elapsedTimeAtom = atom(0);
 
+// Traces to: SPEC-008. True while a new puzzle is being generated (via
+// newGameAtom) or imported (via importPuzzleAtom). Bound 1:1 to the
+// LoadingOverlay component. Must never be persisted to storage and must
+// never be set to true by any code path other than those two write atoms.
+export const isGeneratingAtom = atom(false);
+
 // Helper: Generate unique ID
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -384,113 +385,148 @@ function pruneHistoryTree(tree: HistoryTree): HistoryTree {
 }
 
 // Actions
+// Traces to: SPEC-008. Sets isGeneratingAtom=true, yields one macrotask so
+// React can paint the LoadingOverlay before the synchronous generator
+// workload blocks the main thread, then runs generation and clears the
+// loading flag in a finally block on every exit path (success or throw).
 export const newGameAtom = atom(
   null,
-  (get, set) => {
-    const difficulty = get(difficultyAtom);
-    const result = generatePuzzle(difficulty);
-    const board = createGameBoard(result.puzzle);
-    
-    // Create root node for history tree
-    const rootId = generateId();
-    const rootNode: HistoryNode = {
-      id: rootId,
-      board: cloneBoard(board),
-      moveCount: 0,
-      timestamp: Date.now(),
-      description: 'Start',
-      parentId: null,
-      childrenIds: [],
-      filledCount: countFilled(board),
-    };
-    
-    set(gameStateAtom, {
-      board,
-      solution: result.solution,
-      startTime: Date.now(),
-      isComplete: false,
-      moveCount: 0,
-      difficulty: result.difficulty,
-      difficultyScore: result.difficultyScore,
-      strategies: result.strategies,
-    });
-    
-    set(historyTreeAtom, {
-      nodes: { [rootId]: rootNode },
-      currentNodeId: rootId,
-      rootId,
-    });
-    
-    set(historyAtom, []);
-    set(selectedCellBaseAtom, null);
-    set(pendingCellEditAtom, null);
-    set(noteModeAtom, false);
+  async (get, set) => {
+    // SPEC-008: mark loading state BEFORE the yield so the atom is observable
+    // during the subsequent paint frame.
+    set(isGeneratingAtom, true);
+    try {
+      // SPEC-008: mandatory macrotask yield. Without this, the synchronous
+      // local generator would block the main thread in the same tick the
+      // atom was set, and React would never commit the loading UI before
+      // the block completes.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      const difficulty = get(difficultyAtom);
+      const result = await activeProvider.generator.generate(difficulty);
+      const board = createGameBoard(result.puzzle);
+
+      // Create root node for history tree
+      const rootId = generateId();
+      const rootNode: HistoryNode = {
+        id: rootId,
+        board: cloneBoard(board),
+        moveCount: 0,
+        timestamp: Date.now(),
+        description: 'Start',
+        parentId: null,
+        childrenIds: [],
+        filledCount: countFilled(board),
+      };
+
+      set(gameStateAtom, {
+        board,
+        solution: result.solution,
+        startTime: Date.now(),
+        isComplete: false,
+        moveCount: 0,
+        difficulty: result.difficulty,
+        difficultyScore: result.difficultyScore,
+        strategies: result.strategies,
+      });
+
+      set(historyTreeAtom, {
+        nodes: { [rootId]: rootNode },
+        currentNodeId: rootId,
+        rootId,
+      });
+
+      set(historyAtom, []);
+      set(selectedCellBaseAtom, null);
+      set(pendingCellEditAtom, null);
+      set(noteModeAtom, false);
+    } finally {
+      // SPEC-008: clear loading flag on every exit path, including thrown
+      // errors. Concurrent invocations each hit this finally; the atom
+      // ends up false once the last invocation settles.
+      set(isGeneratingAtom, false);
+    }
   }
 );
 
 // Import puzzle from string
+// Traces to: SPEC-008. Same loading-state contract as newGameAtom — the
+// solver can also block the main thread on hard imports, so the overlay
+// must be visible throughout. Returns false on unparseable / unsolvable
+// input; the loading flag is cleared in finally either way.
 export const importPuzzleAtom = atom(
   null,
-  (_get, set, input: string) => {
-    const puzzle = parseSudokuString(input);
-    if (!puzzle) return false;
+  async (_get, set, input: string) => {
+    // SPEC-008: mark loading state before the yield.
+    set(isGeneratingAtom, true);
+    try {
+      // SPEC-008: mandatory macrotask yield before the solver call.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-    const solution = solvePuzzle(puzzle);
-    if (!solution) return false;
+      const puzzle = parseSudokuString(input);
+      if (!puzzle) return false;
 
-    const board = createGameBoard(puzzle);
+      const solution = await activeProvider.solver.solve(puzzle);
+      if (!solution) return false;
 
-    // Count clues
-    let clueCount = 0;
-    for (const row of puzzle) {
-      for (const cell of row) {
-        if (cell !== null) clueCount++;
+      const board = createGameBoard(puzzle);
+
+      // Count clues
+      let clueCount = 0;
+      for (const row of puzzle) {
+        for (const cell of row) {
+          if (cell !== null) clueCount++;
+        }
       }
+
+      // Infer difficulty from clue count
+      let difficulty: Difficulty = 'medium';
+      if (clueCount >= 36) difficulty = 'easy';
+      else if (clueCount >= 30) difficulty = 'medium';
+      else if (clueCount >= 26) difficulty = 'hard';
+      else if (clueCount >= 22) difficulty = 'expert';
+      else difficulty = 'master';
+
+      const rootId = generateId();
+      const rootNode: HistoryNode = {
+        id: rootId,
+        board: cloneBoard(board),
+        moveCount: 0,
+        timestamp: Date.now(),
+        description: 'Import',
+        parentId: null,
+        childrenIds: [],
+        filledCount: countFilled(board),
+      };
+
+      set(gameStateAtom, {
+        board,
+        solution,
+        startTime: Date.now(),
+        isComplete: false,
+        moveCount: 0,
+        difficulty,
+        difficultyScore: (81 - clueCount) * 10,
+        strategies: [],
+      });
+
+      set(historyTreeAtom, {
+        nodes: { [rootId]: rootNode },
+        currentNodeId: rootId,
+        rootId,
+      });
+
+      set(historyAtom, []);
+      set(selectedCellBaseAtom, null);
+      set(pendingCellEditAtom, null);
+      set(noteModeAtom, false);
+
+      return true;
+    } finally {
+      // SPEC-008: clear loading flag on every exit path including early
+      // returns (invalid input, unsolvable puzzle) and thrown errors.
+      set(isGeneratingAtom, false);
     }
-
-    // Infer difficulty from clue count
-    let difficulty: Difficulty = 'medium';
-    if (clueCount >= 36) difficulty = 'easy';
-    else if (clueCount >= 30) difficulty = 'medium';
-    else if (clueCount >= 26) difficulty = 'hard';
-    else if (clueCount >= 22) difficulty = 'expert';
-    else difficulty = 'master';
-
-    const rootId = generateId();
-    const rootNode: HistoryNode = {
-      id: rootId,
-      board: cloneBoard(board),
-      moveCount: 0,
-      timestamp: Date.now(),
-      description: 'Import',
-      parentId: null,
-      childrenIds: [],
-      filledCount: countFilled(board),
-    };
-
-    set(gameStateAtom, {
-      board,
-      solution,
-      startTime: Date.now(),
-      isComplete: false,
-      moveCount: 0,
-      difficulty,
-      difficultyScore: (81 - clueCount) * 10,
-      strategies: [],
-    });
-
-    set(historyTreeAtom, {
-      nodes: { [rootId]: rootNode },
-      currentNodeId: rootId,
-      rootId,
-    });
-
-    set(historyAtom, []);
-    set(selectedCellBaseAtom, null);
-    set(pendingCellEditAtom, null);
-    set(noteModeAtom, false);
-
-    return true;
   }
 );
 
@@ -913,11 +949,11 @@ export const commitNoteChangesAtom = atom(
 // Show hint - finds the next logical step and displays explanation
 export const showHintAtom = atom(
   null,
-  (get, set) => {
+  async (get, set) => {
     const state = get(gameStateAtom);
     if (state.isComplete || state.board.length === 0) return;
 
-    const hint = getHint(state.board);
+    const hint = await activeProvider.solver.hint(state.board);
     set(currentHintAtom, hint);
     
     // Set links for visualization

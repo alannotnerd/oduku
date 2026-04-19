@@ -1,6 +1,11 @@
-# Specification Index — Gesture & Scroll Lockdown
+# Specification Index
 
-Scope: Full-screen PWA gesture lockdown for Oduku. All page-level browser scrolling, bouncing, pull-to-refresh, and back-navigation gestures MUST be suppressed. Touch and swipe input MUST be delivered only to the in-app game surfaces.
+Scope: Three independent concerns so far.
+
+- **SPEC-001..007 — Gesture & Scroll Lockdown**: Full-screen PWA gesture lockdown. All page-level browser scrolling, bouncing, pull-to-refresh, and back-navigation gestures MUST be suppressed. Touch and swipe input MUST be delivered only to the in-app game surfaces.
+- **SPEC-008 — Puzzle Generation Feedback**: Visible loading indicator while puzzle generation/import is in progress, with a mandatory main-thread yield so the indicator actually paints before the synchronous generator blocks.
+- **SPEC-009 — NumberPad info box content**: The fixed-width info box on the left of the NumberPad always displays the selected cell's location (`R{row+1}C{col+1}`), never the cell's value.
+- **SPEC-010 — No congratulation modal on completion**: On puzzle completion, no modal/dialog/banner announcing the win is rendered. Completion-driven side effects (timer freeze, input disabling) remain unchanged.
 
 | ID | Title | Category | Priority | File |
 |----|-------|----------|----------|------|
@@ -11,8 +16,11 @@ Scope: Full-screen PWA gesture lockdown for Oduku. All page-level browser scroll
 | SPEC-005 | Preserve in-app touch and swipe input to game surfaces | behavior | critical | units/spec-005-preserve-in-app-touch.md |
 | SPEC-006 | Cross-platform viewport and PWA display configuration | integration | critical | units/spec-006-viewport-and-pwa-config.md |
 | SPEC-007 | Scoped scroll escape hatch for legitimately scrollable regions | constraint | standard | units/spec-007-scoped-scroll-escape.md |
+| SPEC-008 | Puzzle generation loading feedback | behavior | critical | units/spec-008-puzzle-generation-loading-feedback.md |
+| SPEC-009 | NumberPad info box always shows cell location | behavior | standard | units/spec-009-numberpad-info-box-shows-location.md |
+| SPEC-010 | No congratulation modal on puzzle completion | behavior | critical | units/spec-010-no-congratulation-modal.md |
 
-Status: All units IMPLEMENTED. Gates 1, 2, 3 passed.
+Status: SPEC-001..007 IMPLEMENTED. SPEC-008 IMPLEMENTED. SPEC-009 IMPLEMENTED. SPEC-010 IMPLEMENTED. Gates 1, 2, 3 passed for all units.
 
 ## Implementation Traceability
 
@@ -25,4 +33,7 @@ Status: All units IMPLEMENTED. Gates 1, 2, 3 passed.
 | SPEC-005 | `src/App.tsx`, `src/components/NumberPad.tsx`, `src/components/BottomPanel.tsx` (data-touch-handled); `src/lib/gestureLockdown.ts` (opt-out algorithm) |
 | SPEC-006 | `index.html` (viewport + apple-* + mobile-web-app-capable meta); `public/manifest.json` (already correct) |
 | SPEC-007 | `src/index.css` (`.scroll-allowed` class) |
+| SPEC-008 | `src/store/game.ts` (`isGeneratingAtom`, yield + `try/finally` in `newGameAtom` and `importPuzzleAtom`); `src/components/LoadingOverlay.tsx`; `src/App.tsx` (mount) |
+| SPEC-009 | `src/components/NumberPad.tsx` (info box renders `R{row+1}C{col+1}` unconditionally when the candidate preview bar is visible) |
+| SPEC-010 | `src/App.tsx` (removed `WinModal` import and `<WinModal />` mount); `src/components/WinModal.tsx` deleted |
 

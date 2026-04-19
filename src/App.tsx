@@ -4,8 +4,8 @@ import { Header } from './components/Header';
 import { Board } from './components/Board';
 import { NumberPad } from './components/NumberPad';
 import { BottomPanel } from './components/BottomPanel';
-import { WinModal } from './components/WinModal';
 import { HintPanel } from './components/HintPanel';
+import { LoadingOverlay } from './components/LoadingOverlay';
 import { newGameAtom, gameStateAtom, setCellValueAtom, selectedCellAtom, clearCellAtom } from './store/game';
 
 function App() {
@@ -56,8 +56,12 @@ function App() {
         <p>Sudoku · Mobile First</p>
       </footer>
 
-      <WinModal />
       <HintPanel />
+      {/* Traces to: SPEC-008, SPEC-010. Overlay is mounted for the app lifetime
+          and toggled via isGeneratingAtom; it has no dependencies on any caller.
+          The prior WinModal sibling was removed per SPEC-010 (no congratulation
+          modal is rendered on completion). */}
+      <LoadingOverlay />
     </div>
   );
 }

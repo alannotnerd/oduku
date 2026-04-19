@@ -14,9 +14,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
 
   if (!open) return null;
 
-  const handleImport = () => {
+  const handleImport = async () => {
     setError('');
-    const result = importPuzzle(input);
+    const result = await importPuzzle(input);
     if (result) {
       setInput('');
       onClose();

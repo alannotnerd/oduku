@@ -317,17 +317,13 @@ export function NumberPad() {
       
       {/* Candidate Preview Bar - fixed label + scrollable numbers */}
       <div className="flex items-center bg-highlight/50 rounded-xl overflow-hidden">
-        {/* Cell info - fixed */}
+        {/* Traces to: SPEC-009. Info box always shows the selected cell's
+            location (R{row+1}C{col+1}). The cell's value is already visible
+            in the grid itself, so duplicating it here would be redundant. */}
         <div className="flex items-center justify-center px-3 py-3 min-w-[48px] shrink-0 border-r border-grid/10">
-          {cellHasValue ? (
-            <span className="text-lg font-bold text-accent">
-              {selectedCell.value}
-            </span>
-          ) : (
-            <span className="text-[10px] text-grid/50 font-mono whitespace-nowrap">
-              R{selected[0] + 1}C{selected[1] + 1}
-            </span>
-          )}
+          <span className="text-[10px] text-grid/50 font-mono whitespace-nowrap">
+            R{selected[0] + 1}C{selected[1] + 1}
+          </span>
         </div>
 
         {/* Number buttons - scrollable on small screens */}

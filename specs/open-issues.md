@@ -7,3 +7,13 @@
 
 ## No open blocking questions
 All input-plan requirements are specifiable without further user input. Proceeding to Phase 2.
+
+## SPEC-008 (puzzle generation feedback) — resolved via stated assumption
+1. **Yield mechanism**: The plan allowed "setTimeout(0) yield OR Web Worker". The spec mandates `setTimeout(0)` for this iteration and explicitly flags the Web Worker option as a non-normative future improvement, per the user's "first pass" direction. No clarification requested.
+2. **Overlay vs header badge**: The plan said "a centered spinner overlay or a header badge is enough". The spec picks the full-viewport overlay because it also prevents the user from tapping cells / number pad while generation is in flight (which otherwise leads to confusing behavior on the stale board). This is a minimal choice, not a redesign.
+3. **Concurrent invocations**: The spec specifies that concurrent invocations do not need a mutex — a later-completing generation overwrites the earlier result and `isGeneratingAtom` stays `true` until all are done. This matches current `newGameAtom` semantics and avoids adding cancellation logic (which the user explicitly excluded).
+
+## SPEC-009 (NumberPad info box) — resolved via stated assumption
+1. **Meaning of "unique candidate"**: The user's brief used the phrase "unique candidate" to refer to the digit currently rendered in the info box. Reading `src/components/NumberPad.tsx`, the info box's value branch shows `selectedCell.value` — which for a non-fixed cell is a user-committed value (possibly an auto-placed single candidate per `selectedCellAtom` logic). The spec treats "unique candidate" as "the committed cell value" and simply removes the value branch entirely so that the location label is the only thing ever shown.
+2. **Styling for the single surviving branch**: Per the user's explicit instruction, the small monospace `text-[10px] text-grid/50 font-mono whitespace-nowrap` styling is retained. The prior accent-colored large-digit styling is removed.
+3. **Layout**: The container element and its dimensions are preserved unchanged so the candidate bar's layout width is stable.
