@@ -1,6 +1,6 @@
 import { solvePuzzle, countSolutions, type Board, type Difficulty } from '../../sudoku';
 import type { PuzzleResult } from '../types';
-import { traceTechniqueScore } from './score';
+import { traceTechniqueScore, type TechniqueTrace } from './score';
 
 function shuffle<T>(array: T[]): void {
   for (let i = array.length - 1; i > 0; i--) {
@@ -78,17 +78,39 @@ function createPuzzle(solved: Board, difficulty: Difficulty): Board {
   return puzzle;
 }
 
-const MAX_ATTEMPTS = 10;
+// Non-overlapping score bands per difficulty. The generator retries until a
+// puzzle lands inside its band so the star score reliably reflects the chosen
+// difficulty — otherwise a "medium" that happens to need only singles scores
+// the same as an "easy" and tiers stop being distinguishable at a glance.
+const TARGET_SCORE_RANGES: Record<Difficulty, [number, number]> = {
+  easy: [0, 300],
+  medium: [301, 650],
+  hard: [651, 1050],
+  expert: [1051, 1750],
+  master: [1751, Infinity],
+};
+
+const MAX_ATTEMPTS = 20;
+
+function scoreDistance(score: number, [min, max]: [number, number]): number {
+  if (score < min) return min - score;
+  if (score > max) return score - max;
+  return 0;
+}
 
 export function generatePuzzle(difficulty: Difficulty = 'medium'): PuzzleResult {
-  let fallback: { puzzle: Board; solution: Board } | null = null;
+  type Candidate = { puzzle: Board; solution: Board; trace: TechniqueTrace };
+  let fallback: Candidate | null = null;
+  const range = TARGET_SCORE_RANGES[difficulty];
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const solution = generateSolvedGrid();
     const puzzle = createPuzzle(solution, difficulty);
     const trace = traceTechniqueScore(puzzle);
 
-    if (trace) {
+    if (!trace) continue; // Required Solution Check — untrusted score, skip.
+
+    if (trace.score >= range[0] && trace.score <= range[1]) {
       return {
         puzzle,
         solution,
@@ -98,14 +120,31 @@ export function generatePuzzle(difficulty: Difficulty = 'medium'): PuzzleResult 
       };
     }
 
-    fallback = { puzzle, solution };
+    if (
+      !fallback ||
+      scoreDistance(trace.score, range) < scoreDistance(fallback.trace.score, range)
+    ) {
+      fallback = { puzzle, solution, trace };
+    }
   }
 
-  // All attempts needed techniques beyond our hint engine. Ship the last puzzle
-  // with a zeroed score so callers can tell the score is not trustworthy.
+  if (fallback) {
+    return {
+      puzzle: fallback.puzzle,
+      solution: fallback.solution,
+      difficulty,
+      difficultyScore: fallback.trace.score,
+      strategies: fallback.trace.strategies,
+    };
+  }
+
+  // Every attempt needed techniques beyond our hint engine. Ship a puzzle
+  // with a zeroed score so callers can tell the score is untrusted.
+  const solution = generateSolvedGrid();
+  const puzzle = createPuzzle(solution, difficulty);
   return {
-    puzzle: fallback!.puzzle,
-    solution: fallback!.solution,
+    puzzle,
+    solution,
     difficulty,
     difficultyScore: 0,
     strategies: [],
