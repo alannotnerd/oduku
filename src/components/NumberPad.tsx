@@ -41,42 +41,51 @@ interface ScrollWheelProps {
   candidateNum: number;
 }
 
+const WHEEL_WIDTH = 124;
+const WHEEL_GAP = 10; // space between button top and wheel bottom
+
 function ScrollWheel({ visible, position, selectedIndex, candidateNum }: ScrollWheelProps) {
-  if (!visible) return null;
-  
   const wheelHeight = ITEM_HEIGHT * VISIBLE_ITEMS;
   const centerOffset = Math.floor(VISIBLE_ITEMS / 2) * ITEM_HEIGHT;
-  
+
+  // position.y is the touch start (~button center); put wheel's bottom edge
+  // WHEEL_GAP above the button top (~18px above the touch y).
+  const bottomAnchor = position.y - 18 - WHEEL_GAP;
+
   return (
-    <div 
+    <div
       className="fixed z-50 pointer-events-none"
-      style={{ 
-        left: position.x - 50, 
-        top: position.y - wheelHeight - 20,
+      style={{
+        left: position.x - WHEEL_WIDTH / 2,
+        top: bottomAnchor - wheelHeight,
+        width: WHEEL_WIDTH,
+        height: wheelHeight,
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'scale(1)' : 'scale(0.35)',
+        transformOrigin: '50% calc(100% + 18px)',
+        transition:
+          'transform 200ms cubic-bezier(0.22, 1.1, 0.36, 1), opacity 140ms ease-out',
+        willChange: 'transform, opacity',
       }}
     >
-      {/* Wheel container */}
-      <div 
-        className="relative bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-grid/20 overflow-hidden"
-        style={{ width: 100, height: wheelHeight }}
-      >
-        {/* Gradient overlays for 3D effect */}
-        <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none" />
-        
+      {/* Wheel body — matches the numberpad palette (bg-paper + sepia border)
+          so it reads as a continuation of the button's border rather than a
+          floating popover. */}
+      <div className="relative w-full h-full bg-paper rounded-xl border border-grid/30 shadow-[0_10px_30px_-8px_rgba(58,47,36,0.4)] overflow-hidden">
+        {/* Top/bottom fades in the paper color so items melt into the border */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-paper to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-paper to-transparent z-10 pointer-events-none" />
+
         {/* Selection highlight */}
-        <div 
-          className="absolute inset-x-1 bg-accent/20 rounded-lg border border-accent/30 z-0"
-          style={{ 
-            top: centerOffset,
-            height: ITEM_HEIGHT,
-          }}
+        <div
+          className="absolute inset-x-2 bg-accent/15 rounded-md border border-accent/40 z-0"
+          style={{ top: centerOffset, height: ITEM_HEIGHT }}
         />
-        
+
         {/* Scrolling items */}
-        <div 
+        <div
           className="absolute inset-x-0 transition-transform duration-75 ease-out"
-          style={{ 
+          style={{
             transform: `translateY(${centerOffset - selectedIndex * ITEM_HEIGHT}px)`,
           }}
         >
@@ -84,8 +93,8 @@ function ScrollWheel({ visible, position, selectedIndex, candidateNum }: ScrollW
             const isSelected = index === selectedIndex;
             const distance = Math.abs(index - selectedIndex);
             const opacity = 1 - distance * 0.25;
-            const scale = 1 - distance * 0.1;
-            
+            const scale = 1 - distance * 0.08;
+
             return (
               <div
                 key={option.mark}
@@ -98,10 +107,10 @@ function ScrollWheel({ visible, position, selectedIndex, candidateNum }: ScrollW
                 style={{
                   height: ITEM_HEIGHT,
                   opacity: Math.max(0.3, opacity),
-                  transform: `scale(${Math.max(0.8, scale)})`,
+                  transform: `scale(${Math.max(0.82, scale)})`,
                 }}
               >
-                <span 
+                <span
                   className={`w-5 h-5 rounded-full ${option.bgColor} flex items-center justify-center text-xs`}
                 >
                   {option.mark === 'strong' ? '━' : option.mark === 'weak' ? '┄' : option.mark === 'none' ? '✕' : '●'}
@@ -111,17 +120,12 @@ function ScrollWheel({ visible, position, selectedIndex, candidateNum }: ScrollW
             );
           })}
         </div>
-      </div>
-      
-      {/* Arrow pointing to button */}
-      <div 
-        className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-grid/20 rotate-45"
-        style={{ bottom: -6 }}
-      />
-      
-      {/* Candidate number indicator */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-2 py-1 rounded-full">
-        {candidateNum}
+
+        {/* Candidate chip — lives inside the wheel's border so it reads as
+            part of the same expanded surface. */}
+        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-20 shadow-sm">
+          候选 {candidateNum}
+        </div>
       </div>
     </div>
   );
@@ -367,7 +371,7 @@ export function NumberPad() {
                 className={`
                   w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
                   text-base sm:text-lg font-medium rounded-lg
-                  transition-all duration-100 touch-manipulation select-none
+                  transition-all duration-100 touch-none select-none
                   ${buttonStyle}
                   ${isSwiping ? 'scale-110 shadow-lg' : ''}
                 `}
