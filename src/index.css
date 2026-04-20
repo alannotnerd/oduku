@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm "morning paper" palette — a lighter, airier take on aged stationery.
-   * Same warm family and single chromatic anchor as before, but the surfaces,
-   * grid, and highlight washes are dialed up in luminance so the board breathes.
-   * Text contrast is preserved: fixed and ink still read strongly against paper,
-   * notes clear the 3:1 bar, user digits sit at 7:1 sepia. */
-  --color-ink: #2a2319;
-  --color-paper: #fbf5e4;
-  --color-grid: #c2b295;
-  --color-accent: #bb6b4b;
-  --color-accent-light: #e8bc9e;
-  --color-highlight: #f0e6cf;
-  --color-selected: #bb6b4b;
-  --color-conflict: #a84035;
-  --color-same-value: #e8bc9e;
-  --color-fixed: #241c12;
-  --color-user: #6b4529;
-  --color-notes: #8c7c62;
+  /* Catppuccin Latte palette — light flavor of the Catppuccin family.
+   * Cool-neutral base with mauve as the chromatic anchor, rosewater as the
+   * companion highlight, and blue for user-entered digits (the classic
+   * Catppuccin "editable data" cue). Variable names kept so class usages
+   * don't move. */
+  --color-ink: #4c4f69;           /* Latte `text` — UI labels, body copy */
+  --color-paper: #eff1f5;         /* Latte `base` — background */
+  --color-grid: #9ca0b0;           /* Latte `overlay0` — grid lines */
+  --color-accent: #8839ef;         /* Latte `mauve` — selected ring, badges */
+  --color-accent-light: #dc8a78;   /* Latte `rosewater` — same-value wash */
+  --color-highlight: #e6e9ef;      /* Latte `mantle` — soft surfaces */
+  --color-selected: #8839ef;       /* legacy alias → mauve */
+  --color-conflict: #d20f39;       /* Latte `red` — conflicts */
+  --color-same-value: #dc8a78;     /* legacy alias → rosewater */
+  --color-fixed: #4c4f69;          /* Latte `text` — original clues, paired w/ font-semibold */
+  --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
+  --color-notes: #6c6f85;          /* Latte `subtext0` — candidate notes */
 
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
