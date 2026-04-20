@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm-paper palette — Latte accents on a hand-warmed neutral ramp.
+  /* "Field Notebook" — warm ivory stationery with fountain-pen accents.
    *
-   * Why off-Latte for the neutrals: Latte's stock `base` (#eff1f5) is a cool
-   * bluish gray. On a 9x9 grid, any ink-based overlay — even at 5% — reads as
-   * geometric smudges that out-compete the same-value/selected cues, and the
-   * whole board feels clinical. Shifting the paper and the ink ramp toward
-   * warm tones lets the existing Latte accents (mauve/yellow/red/blue) sing
-   * instead of fighting a cold field. The accents themselves stay stock Latte. */
-  --color-paper: #faf6ed;          /* warm cream — paper base */
-  --color-highlight: #f0e9d5;      /* darker cream for drawers/cards */
-  --color-grid: #a8a094;           /* warm medium gray — pencil-drawn grid */
-  --color-ink: #3b3936;            /* warm charcoal — UI labels */
-  --color-notes: #7b7468;          /* warm mid-tone — candidate notes */
-  --color-fixed: #1a1a17;          /* near-black warm — original-clue ink */
-  --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
-  --color-accent: #8839ef;         /* Latte `mauve` — selected ring + wash */
-  --color-accent-light: #df8e1d;   /* Latte `yellow` — same-value + peer wash */
-  --color-selected: #8839ef;       /* legacy alias → mauve */
-  --color-conflict: #d20f39;       /* Latte `red` — emergency alarm */
-  --color-same-value: #df8e1d;     /* legacy alias → yellow */
+   * Four distinct hues carry four distinct meanings instead of piling work
+   * onto one accent: cobalt for user ink, peacock teal for the selected
+   * cell, saffron for the same-value wash, burgundy for conflicts. The
+   * peer (row/col/box) wash is intentionally near-invisible — it should
+   * hint at context, not paint an L-shape across the board. */
+  --color-paper: #faf3e3;          /* ivory parchment */
+  --color-highlight: #ede2c7;      /* deeper cream — drawers, cards */
+  --color-grid: #b5a38a;           /* sepia grid lines */
+  --color-ink: #3a2f24;            /* walnut — UI text */
+  --color-notes: #86735d;          /* faded sepia — candidate notes */
+  --color-fixed: #1a1510;          /* near-black warm — original-clue ink */
+  --color-user: #1d4ed8;           /* cobalt ink — user-entered digits */
+  --color-accent: #0e7490;         /* peacock teal — selection ring + wash */
+  --color-accent-light: #ea580c;   /* saffron — same-value wash */
+  --color-selected: #0e7490;       /* legacy alias → teal */
+  --color-conflict: #9f1239;       /* burgundy — conflict alarm */
+  --color-same-value: #ea580c;     /* legacy alias → saffron */
 
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
