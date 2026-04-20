@@ -25,3 +25,15 @@ All input-plan requirements are specifiable without further user input. Proceedi
 1. **Meaning of "unique candidate"**: The user's brief used the phrase "unique candidate" to refer to the digit currently rendered in the info box. Reading `src/components/NumberPad.tsx`, the info box's value branch shows `selectedCell.value` — which for a non-fixed cell is a user-committed value (possibly an auto-placed single candidate per `selectedCellAtom` logic). The spec treats "unique candidate" as "the committed cell value" and simply removes the value branch entirely so that the location label is the only thing ever shown.
 2. **Styling for the single surviving branch**: Per the user's explicit instruction, the small monospace `text-[10px] text-grid/50 font-mono whitespace-nowrap` styling is retained. The prior accent-colored large-digit styling is removed.
 3. **Layout**: The container element and its dimensions are preserved unchanged so the candidate bar's layout width is stable.
+
+## SPEC-013..020 (Solver technique expansion) — resolved via stated assumption
+
+1. **Cascade order**: The plan says "Naked Pair fix and Hidden Pair should go right after the existing Naked Pair slot. X-Wing/Swordfish/XY-Wing at the end before Solution Check." The spec interprets this as the following cascade order within `getHint()`: Naked Single → Hidden Single → Pointing Pair → Claiming → Naked Pair → Hidden Pair → Naked Triple → Hidden Triple → X-Wing → Swordfish → XY-Wing → Solution Check. Claiming is placed right after Pointing Pair since it is the same complexity class. Naked/Hidden Triples come after the pairs. This matches standard Sudoku difficulty ordering per sudoku.com.
+
+2. **Score weights**: The plan does not specify exact weight values. The spec assigns weights based on relative difficulty: Hidden Pair 60, Naked Triple 80, Hidden Triple 100, X-Wing 120, XY-Wing 140, Swordfish 150, Claiming 50 (same as Pointing Pair). These are consistent with the existing weight scale (Naked Single 10, Hidden Single 15, Naked Pair 40, Pointing Pair 50).
+
+3. **Technique label format**: The plan says "technique name matching sudoku.com's terminology." For pair/triple techniques, the existing code adds unit type in parentheses (e.g. "Hidden Single (Row)"). The spec follows this pattern: "Naked Pair (Row)", "Hidden Pair (Box)", etc. The `canonicalLabel()` function in `score.ts` strips parentheticals, so the weight map uses the base name only. For X-Wing, Swordfish, XY-Wing, and Claiming, no parenthetical is added since the unit type is implicit in the pattern.
+
+4. **Swordfish links**: The plan says "links array for chain-based techniques." For Swordfish, the spec defines links connecting cells within rows and within columns of the pattern, forming a grid. The exact link topology visualizes the fish pattern.
+
+5. **Box numbering**: Throughout, boxes are numbered 1-9 (1-based) in user-facing strings, left-to-right top-to-bottom. In code, box indices are computed as `Math.floor(row/3) * 3 + Math.floor(col/3)` (0-based). Display label = box_index + 1.

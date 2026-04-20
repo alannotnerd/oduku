@@ -8,7 +8,22 @@ const TECHNIQUE_WEIGHTS: Record<string, number> = {
   'Hidden Single (Column)': 15,
   'Hidden Single (Box)': 15,
   'Pointing Pair': 50,
-  'Naked Pair': 40,
+  'Claiming': 50,
+  'Naked Pair (Row)': 40,
+  'Naked Pair (Column)': 40,
+  'Naked Pair (Box)': 40,
+  'Hidden Pair (Row)': 60,
+  'Hidden Pair (Column)': 60,
+  'Hidden Pair (Box)': 60,
+  'Naked Triple (Row)': 80,
+  'Naked Triple (Column)': 80,
+  'Naked Triple (Box)': 80,
+  'Hidden Triple (Row)': 100,
+  'Hidden Triple (Column)': 100,
+  'Hidden Triple (Box)': 100,
+  'X-Wing': 120,
+  'XY-Wing': 140,
+  'Swordfish': 150,
 };
 
 export interface TechniqueTrace {

@@ -47,4 +47,31 @@ SPEC-012 (Settings drawer for secondary and infrequent actions)
    └── depends on SPEC-007 (drawer scrollable content carries data-scroll-allowed)
 ```
 
+SPEC-013 (Naked Pair Fix — rows, columns, boxes)
+   └── no dependencies (extends existing findNakedPair)
+
+SPEC-014 (Hidden Pair)
+   └── no dependencies
+
+SPEC-015 (Naked Triple)
+   └── no dependencies
+
+SPEC-016 (Hidden Triple)
+   └── no dependencies
+
+SPEC-017 (Claiming / Box-Line Reduction)
+   └── no dependencies
+
+SPEC-018 (X-Wing)
+   └── no dependencies
+
+SPEC-019 (Swordfish)
+   └── no dependencies (conceptually generalizes SPEC-018 but no code dependency)
+
+SPEC-020 (XY-Wing)
+   └── no dependencies
+```
+
 Graph is acyclic. Implementation order (topological): SPEC-006 → SPEC-001 → SPEC-002 → SPEC-004 → SPEC-005 → SPEC-003 → SPEC-007. SPEC-008, SPEC-009, and SPEC-010 may be implemented at any point; they have no ordering relationship to the others. SPEC-011 and SPEC-012 are mutually referential at the UI contract level but not at the implementation dependency level — they ship in a single change because the hamburger and the drawer are two sides of the same interaction. Implementation order within that change: build the drawer component first (pure presentational given props), then wire it into the header.
+
+SPEC-013..020 are all independent of each other and of SPEC-001..012. They all modify `solver.ts` and `score.ts` within the local provider. Implementation order follows the `getHint()` cascade order: SPEC-013 → SPEC-014 → SPEC-015 → SPEC-016 → SPEC-017 → SPEC-018 → SPEC-019 → SPEC-020.

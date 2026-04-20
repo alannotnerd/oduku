@@ -56,3 +56,22 @@ Every explicit requirement is covered. No orphan requirements remain.
 | Accessibility: `aria-label`, `role="dialog"`, `aria-modal`, Escape; no focus trap | SPEC-011 (header button labels + `aria-expanded`), SPEC-012 (drawer ARIA + Escape; focus trap explicitly excluded) |
 | No new dependencies / design-system tokens | SPEC-011, SPEC-012 (both enumerate constraints against new deps / tokens) |
 | Do NOT touch `gameState` shape, `selectedCellAtom`, non-header component logic, global gesture listener, PWA manifest | SPEC-011 / SPEC-012 scope sections explicitly exclude these |
+
+## Solver technique expansion plan
+
+| Input plan requirement (verbatim / paraphrased) | Covered by |
+|-------------------------------------------------|------------|
+| "Fix Naked Pair — currently only checks rows. Extend to also check columns and boxes." | SPEC-013 (extends `findNakedPair` to iterate columns and boxes, adds unit-type label) |
+| "Hidden Pair — two numbers that only appear in exactly two cells within a row/col/box → those cells keep only those two candidates." | SPEC-014 (detects hidden pairs in all three unit types, eliminates non-pair candidates) |
+| "Naked Triple — three cells in a unit sharing exactly 3 candidates total" | SPEC-015 (detects naked triples in all unit types, eliminates from other cells) |
+| "Hidden Triple — three numbers that only appear in exactly three cells within a unit" | SPEC-016 (detects hidden triples in all unit types, eliminates non-triple candidates) |
+| "Claiming (Box-Line Reduction) — reverse of pointing pair" | SPEC-017 (row/column → box direction, eliminates from rest of box) |
+| "X-Wing — a candidate appears in exactly 2 cells in each of 2 rows, and those cells share the same 2 columns" | SPEC-018 (row-based and column-based X-Wing with links visualization) |
+| "Swordfish — generalization of X-Wing to 3 rows/columns" | SPEC-019 (3-row/column fish pattern with links) |
+| "XY-Wing — a cell with 2 candidates (pivot) sees two cells (wings)" | SPEC-020 (pivot + wings pattern, eliminates shared candidate Z from cells seeing both wings) |
+| "Each technique must return a proper HintStep" | All SPEC-013..020 specify exact HintStep fields |
+| "Add technique weights to the score map in score.ts" | SPEC-014..020 each specify their weight value; SPEC-013 reuses existing "Naked Pair" weight |
+| "Insert new techniques into getHint() cascade in logical order" | Specified in implementation notes: cascade order is Naked Single → Hidden Single → Pointing Pair → Claiming → Naked Pair → Hidden Pair → Naked Triple → Hidden Triple → X-Wing → Swordfish → XY-Wing → Solution Check |
+| "links array for chain-based techniques (X-Wing, Swordfish, XY-Wing)" | SPEC-018 (4 strong links rectangle), SPEC-019 (grid links), SPEC-020 (pivot-wing links) |
+| "All techniques must operate on GameBoard" | All SPEC-013..020 specify GameBoard input |
+| "Follow the existing code style and patterns in solver.ts" | Specified as constraint in all units |
