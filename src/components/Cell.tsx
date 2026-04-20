@@ -53,13 +53,13 @@ export function Cell({ row, col }: CellProps) {
         outline-none focus:outline-none
         active:scale-95 touch-manipulation
         ${isSelected
-          ? 'bg-selected/60 z-10'
+          ? 'bg-paper ring-[2.5px] ring-accent ring-inset z-10'
           : isSameValue
-            ? 'bg-same-value/50'
+            ? 'bg-accent-light/40'
             : isRelated
-              ? 'bg-highlight/50'
+              ? 'bg-ink/[0.04]'
               : 'bg-paper'}
-        ${cell.isConflict ? 'bg-conflict/40' : ''}
+        ${cell.isConflict ? 'bg-conflict/25 ring-1 ring-conflict/60 ring-inset' : ''}
         ${cell.isFixed ? 'text-fixed font-semibold' : 'text-user'}
       `}
       aria-label={`Cell ${row + 1}, ${col + 1}${cell.value ? `, value ${cell.value}` : ', empty'}`}

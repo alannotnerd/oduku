@@ -19,29 +19,13 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import {
-  difficultyAtom,
-  newGameAtom,
   gameStateAtom,
   showHintAtom,
-  type Difficulty,
 } from '../store/game';
 import { ImportModal } from './ImportModal';
 import { SettingsDrawer } from './SettingsDrawer';
 
-// Traces to: SPEC-011. Difficulty indicator label mapping.
-const difficultyLabels: Record<Difficulty, string> = {
-  easy: 'Easy',
-  medium: 'Medium',
-  hard: 'Hard',
-  expert: 'Expert',
-  master: 'Master',
-};
-
 export function Header() {
-  // Traces to: SPEC-011. Read-only reads of difficulty and game state; write
-  // via newGameAtom and showHintAtom. Difficulty writes now live in the drawer.
-  const difficulty = useAtomValue(difficultyAtom);
-  const newGame = useSetAtom(newGameAtom);
   const showHint = useSetAtom(showHintAtom);
   const gameState = useAtomValue(gameStateAtom);
   const [elapsed, setElapsed] = useState(0);
@@ -75,12 +59,14 @@ export function Header() {
   return (
     <header className="w-full max-w-[min(90vw,400px)] mx-auto py-4">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        {/* Left: title + informational difficulty pill. */}
+        {/* Left: title + difficulty score badge. */}
         <div className="flex items-center gap-2 min-w-0 justify-self-start">
           <h1 className="text-2xl font-bold text-ink tracking-tight">Sudoku</h1>
-          <span className="px-2 py-0.5 text-xs font-medium bg-highlight text-grid rounded-full">
-            {difficultyLabels[difficulty] || 'Medium'}
-          </span>
+          {gameState.difficultyScore > 0 && (
+            <span className="px-2 py-0.5 text-xs font-mono font-medium bg-accent/10 text-accent rounded-full tabular-nums">
+              ★{Math.round(gameState.difficultyScore)}
+            </span>
+          )}
         </div>
 
         {/* Center: timer doubles as the hint trigger. */}
@@ -94,18 +80,8 @@ export function Header() {
           {formatTime(elapsed)}
         </button>
 
-        {/* Right: new-game + hamburger. */}
+        {/* Right: hamburger only — new-game is triggered by difficulty selection in the drawer. */}
         <div className="flex items-center gap-2 justify-self-end">
-          <button
-            onClick={() => newGame()}
-            className="p-2 bg-accent text-white rounded-lg shadow-md hover:bg-accent-light active:scale-95 transition-all touch-manipulation"
-            aria-label="New Game"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-
           <button
             onClick={() => setDrawerOpen((prev) => !prev)}
             aria-label="Open settings"

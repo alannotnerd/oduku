@@ -11,11 +11,12 @@
  *             scrolling)
  */
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import {
   difficultyAtom,
   gameStateAtom,
+  newGameAtom,
   type Difficulty,
 } from '../store/game';
 
@@ -38,6 +39,7 @@ interface SettingsDrawerProps {
 export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerProps) {
   // Traces to: SPEC-012. read-only for puzzle details; write for difficulty.
   const [difficulty, setDifficulty] = useAtom(difficultyAtom);
+  const newGame = useSetAtom(newGameAtom);
   const gameState = useAtomValue(gameStateAtom);
 
   // Traces to: SPEC-012 — Escape closes the drawer when open.
@@ -53,11 +55,12 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   // Traces to: SPEC-012. When closed, render nothing — no off-screen DOM.
   if (!open) return null;
 
-  // Traces to: SPEC-012. Choosing a difficulty writes the atom AND closes the
-  // drawer. Does not call newGameAtom; difficulty governs the *next* new game
-  // (consistent with the prior dropdown behavior and SPEC-011 Postconditions).
+  // Picking a difficulty writes the atom, immediately generates a new puzzle,
+  // and closes the drawer. This replaces the standalone refresh button — any
+  // difficulty tap (including the currently-selected one) starts a fresh game.
   const handleDifficultyPick = (d: Difficulty) => {
     setDifficulty(d);
+    newGame();
     onClose();
   };
 
@@ -131,7 +134,7 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
                 );
               })}
             </div>
-            <p className="text-xs text-grid/50 mt-2">Applies to the next new game</p>
+            <p className="text-xs text-grid/50 mt-2">Tap a difficulty to start a new game</p>
           </section>
 
           {/* Traces to: SPEC-012. Puzzle section — import entry point. */}
