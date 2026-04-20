@@ -1,23 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Catppuccin Mocha — dark flavor. Chosen for "lively" feel because pastels
-   * need a dark base to gain perceptual contrast; on a light base the same
-   * hues read as drab. Variable names kept so component classes don't move.
-   * Hierarchy inversion: fixed digits are pure white (printed ink on dark),
-   * user digits stay chromatic blue (your pen). */
-  --color-paper: #1e1e2e;          /* Mocha `base` — board + page bg */
-  --color-highlight: #313244;      /* Mocha `surface0` — soft surfaces (drawer sections) */
-  --color-grid: #45475a;           /* Mocha `surface1` — grid lines */
-  --color-ink: #cdd6f4;            /* Mocha `text` — UI labels, body copy */
-  --color-notes: #a6adc8;          /* Mocha `subtext0` — candidate notes, subordinate */
-  --color-fixed: #ffffff;          /* pure white — original clues, max luminance */
-  --color-user: #89b4fa;           /* Mocha `blue` — user-entered digits, chromatic */
-  --color-accent: #cba6f7;         /* Mocha `mauve` — selected ring + wash, the focal anchor */
-  --color-accent-light: #f5e0dc;   /* Mocha `rosewater` — same-value wash, warm companion */
-  --color-selected: #cba6f7;       /* legacy alias → mauve */
-  --color-conflict: #f38ba8;       /* Mocha `red` — emergency alarm */
-  --color-same-value: #f5e0dc;     /* legacy alias → rosewater */
+  /* Catppuccin Latte — light flavor with two deliberate moves aimed at the
+   * "drab + peer dominance" critique:
+   *   (1) same-value uses Yellow, not Rosewater — at 92% lightness Rosewater
+   *       can't pop against a 95%-lightness paper base; Yellow is saturated
+   *       enough to be legibly warm at low opacity.
+   *   (2) fixed digits go near-black (off-Latte, borrowed from Mocha's base)
+   *       so the "printed clue vs your blue pen" distinction is unambiguous.
+   * Everything else is stock Latte. */
+  --color-paper: #eff1f5;          /* Latte `base` */
+  --color-highlight: #e6e9ef;      /* Latte `mantle` — drawer surfaces */
+  --color-grid: #9ca0b0;           /* Latte `overlay0` — grid lines */
+  --color-ink: #4c4f69;            /* Latte `text` — UI labels */
+  --color-notes: #6c6f85;          /* Latte `subtext0` — candidate notes */
+  --color-fixed: #1e1e2e;          /* near-black — original clues, printed-ink feel */
+  --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
+  --color-accent: #8839ef;         /* Latte `mauve` — selected ring + wash */
+  --color-accent-light: #df8e1d;   /* Latte `yellow` — same-value wash, chosen for liveliness */
+  --color-selected: #8839ef;       /* legacy alias → mauve */
+  --color-conflict: #d20f39;       /* Latte `red` — emergency alarm */
+  --color-same-value: #df8e1d;     /* legacy alias → yellow */
 
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
