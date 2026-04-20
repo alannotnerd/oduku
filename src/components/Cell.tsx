@@ -40,36 +40,51 @@ export function Cell({ row, col }: CellProps) {
     setSelected([row, col]);
   };
 
+  // State wash lives on a child overlay, not the button. The board's grid
+  // lines are drawn via gaps over a sepia `bg-grid` backing, so any low-alpha
+  // background on the button itself composites against sepia — not ivory —
+  // making every "subtle" state read as a dark sepia block. Keeping the
+  // button solid `bg-paper` and painting the state on an absolute child
+  // composites the alpha against paper, which is what the opacity numbers
+  // actually look like.
+  const overlayClass = cell.isConflict
+    ? 'bg-conflict/20 ring-[1.5px] ring-conflict/80 ring-inset'
+    : isSelected
+      ? 'bg-accent/18 ring-[2.5px] ring-accent ring-inset'
+      : isSameValue
+        ? 'bg-accent-light/30'
+        : isRelated
+          ? 'bg-ink/[0.035]'
+          : '';
+
   return (
     <button
       onClick={handleCellClick}
       data-row={row}
       data-col={col}
       className={`
-        relative aspect-square w-full
+        relative aspect-square w-full bg-paper
         flex items-center justify-center
         text-lg sm:text-xl md:text-2xl font-medium
-        transition-colors duration-100
         outline-none focus:outline-none
         active:scale-95 touch-manipulation
-        ${isSelected
-          ? 'bg-accent/18 ring-[2.5px] ring-accent ring-inset z-10'
-          : isSameValue
-            ? 'bg-accent-light/30'
-            : isRelated
-              ? 'bg-ink/[0.02]'
-              : 'bg-paper'}
-        ${cell.isConflict ? 'bg-conflict/20 ring-[1.5px] ring-conflict/80 ring-inset z-10' : ''}
+        ${(isSelected || cell.isConflict) ? 'z-10' : ''}
         ${cell.isFixed ? 'text-fixed font-semibold' : 'text-user'}
       `}
       aria-label={`Cell ${row + 1}, ${col + 1}${cell.value ? `, value ${cell.value}` : ', empty'}`}
     >
+      {overlayClass && (
+        <span
+          aria-hidden
+          className={`absolute inset-0 pointer-events-none transition-colors duration-100 ${overlayClass}`}
+        />
+      )}
       {cell.value !== null ? (
-        <span className={cell.isConflict ? 'text-conflict' : ''}>
+        <span className={`relative z-10 ${cell.isConflict ? 'text-conflict' : ''}`}>
           {cell.value}
         </span>
       ) : (
-        <div className="grid grid-cols-3 grid-rows-3 w-full h-full p-0.5">
+        <div className="relative z-10 grid grid-cols-3 grid-rows-3 w-full h-full p-0.5">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => {
             const hasNote = cell.notes.has(n);
             const isHighlighted = hasNote && selectedValue === n;
