@@ -278,11 +278,11 @@ export function NumberPad() {
     // Check pending link mark first
     const { isPending, type } = isPendingLinkSource(num);
     if (isPending && type) {
-      return { 
-        style: type === 'strong' 
-          ? 'ring-2 ring-blue-500 bg-blue-100 animate-pulse' 
-          : 'ring-2 ring-orange-400 bg-orange-100 animate-pulse',
-        indicator: '→?' 
+      return {
+        style: type === 'strong'
+          ? 'ring-2 ring-blue-600 bg-blue-400/50 text-blue-900 font-bold animate-pulse'
+          : 'ring-2 ring-orange-600 bg-orange-400/50 text-orange-900 font-bold animate-pulse',
+        indicator: '→?'
       };
     }
     

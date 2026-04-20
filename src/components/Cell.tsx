@@ -48,13 +48,13 @@ export function Cell({ row, col }: CellProps) {
   // composites the alpha against paper, which is what the opacity numbers
   // actually look like.
   const overlayClass = cell.isConflict
-    ? 'bg-conflict/20 ring-[1.5px] ring-conflict/80 ring-inset'
+    ? 'bg-conflict/25 ring-[1.5px] ring-conflict/80 ring-inset'
     : isSelected
-      ? 'bg-accent/18 ring-[2.5px] ring-accent ring-inset'
+      ? 'bg-accent/25 ring-[1.5px] ring-accent/70 ring-inset'
       : isSameValue
-        ? 'bg-accent-light/30'
+        ? 'bg-accent-light/40'
         : isRelated
-          ? 'bg-ink/[0.035]'
+          ? 'bg-ink/[0.04]'
           : '';
 
   return (
@@ -110,9 +110,9 @@ export function Cell({ row, col }: CellProps) {
             // Pending link source styling (stronger highlight)
             let pendingLinkStyle = '';
             if (isPendingLinkSource) {
-              pendingLinkStyle = pendingLinkMark.type === 'strong' 
-                ? 'ring-2 ring-blue-500 bg-blue-100 animate-pulse' 
-                : 'ring-2 ring-orange-400 bg-orange-100 animate-pulse';
+              pendingLinkStyle = pendingLinkMark.type === 'strong'
+                ? 'ring-2 ring-blue-600 bg-blue-400/50 text-blue-900 font-bold animate-pulse'
+                : 'ring-2 ring-orange-600 bg-orange-400/50 text-orange-900 font-bold animate-pulse';
             }
             
             return (
