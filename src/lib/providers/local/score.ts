@@ -2,29 +2,39 @@ import { createGameBoard, getRelatedCells, type Board, type GameBoard } from '..
 import type { HintStep } from '../types';
 import { getHint } from './solver';
 
+// Weights calibrated so each tier is an order of magnitude harder to spot than
+// the previous one. Paired with peak-dominated scoring below, the hardest
+// technique a puzzle requires sets its overall tier and the rest acts as a
+// tiebreaker. Without this spread, a single X-Wing gets drowned out by fifty
+// trivial singles and the final score stops reflecting actual difficulty.
 const TECHNIQUE_WEIGHTS: Record<string, number> = {
-  'Naked Single': 10,
-  'Hidden Single (Row)': 15,
-  'Hidden Single (Column)': 15,
-  'Hidden Single (Box)': 15,
-  'Pointing Pair': 50,
-  'Claiming': 50,
-  'Naked Pair (Row)': 40,
-  'Naked Pair (Column)': 40,
-  'Naked Pair (Box)': 40,
-  'Hidden Pair (Row)': 60,
-  'Hidden Pair (Column)': 60,
-  'Hidden Pair (Box)': 60,
-  'Naked Triple (Row)': 80,
-  'Naked Triple (Column)': 80,
-  'Naked Triple (Box)': 80,
-  'Hidden Triple (Row)': 100,
-  'Hidden Triple (Column)': 100,
-  'Hidden Triple (Box)': 100,
-  'X-Wing': 120,
-  'XY-Wing': 140,
-  'Swordfish': 150,
+  'Naked Single': 2,
+  'Hidden Single (Row)': 5,
+  'Hidden Single (Column)': 5,
+  'Hidden Single (Box)': 5,
+  'Pointing Pair': 30,
+  'Claiming': 30,
+  'Naked Pair (Row)': 50,
+  'Naked Pair (Column)': 50,
+  'Naked Pair (Box)': 50,
+  'Hidden Pair (Row)': 70,
+  'Hidden Pair (Column)': 70,
+  'Hidden Pair (Box)': 70,
+  'Naked Triple (Row)': 100,
+  'Naked Triple (Column)': 100,
+  'Naked Triple (Box)': 100,
+  'Hidden Triple (Row)': 130,
+  'Hidden Triple (Column)': 130,
+  'Hidden Triple (Box)': 130,
+  'X-Wing': 180,
+  'XY-Wing': 220,
+  'Swordfish': 260,
 };
+
+// Peak technique dominates the score; accumulated weight acts as a tiebreaker.
+// Rough tiers: easy ~150, medium ~450, hard ~750, expert ~1300, master ~2000+.
+const PEAK_MULTIPLIER = 10;
+const TOTAL_DIVISOR = 2;
 
 export interface TechniqueTrace {
   score: number;
@@ -33,13 +43,15 @@ export interface TechniqueTrace {
 
 export function traceTechniqueScore(puzzle: Board): TechniqueTrace | null {
   const board = createGameBoard(puzzle);
-  let score = 0;
+  let totalWeight = 0;
+  let peakWeight = 0;
   const freq = new Map<string, number>();
 
   // Hard cap on steps guards against any pathological non-progressing loop.
   for (let step = 0; step < 200; step++) {
     const hint = getHint(board);
     if (!hint) {
+      const score = peakWeight * PEAK_MULTIPLIER + totalWeight / TOTAL_DIVISOR;
       return {
         score,
         strategies: Array.from(freq, ([title, f]) => ({ title, freq: f })),
@@ -47,7 +59,10 @@ export function traceTechniqueScore(puzzle: Board): TechniqueTrace | null {
     }
     if (hint.technique === 'Solution Check') return null;
 
-    score += TECHNIQUE_WEIGHTS[hint.technique] ?? 0;
+    const weight = TECHNIQUE_WEIGHTS[hint.technique] ?? 0;
+    totalWeight += weight;
+    if (weight > peakWeight) peakWeight = weight;
+
     const label = canonicalLabel(hint.technique);
     freq.set(label, (freq.get(label) ?? 0) + 1);
 
