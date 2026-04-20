@@ -137,14 +137,17 @@ export function LinkOverlay() {
     setCellRects(newCellRects);
   }, [links]);
 
-  if (links.length === 0 || !boardRect) return null;
-
+  // The container must mount unconditionally so `containerRef.current` can be
+  // populated on first render — otherwise the measurement effect above always
+  // hits its `!containerRef.current` early-return, boardRect stays null, and
+  // this component stays null forever (deadlock on the very first link).
   return (
-    <div 
+    <div
       ref={containerRef}
       className="absolute inset-0 pointer-events-none z-10"
       aria-hidden="true"
     >
+      {boardRect && links.length > 0 && (
       <svg className="w-full h-full" style={{ overflow: 'visible' }}>
         {links.map((link, index) => {
           const fromCellRect = cellRects.get(`${link.from.row}-${link.from.col}`);
@@ -216,6 +219,7 @@ export function LinkOverlay() {
           );
         })}
       </svg>
+      )}
     </div>
   );
 }
