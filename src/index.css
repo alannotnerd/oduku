@@ -1,27 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Catppuccin Latte palette — light flavor of the Catppuccin family.
-   * Cool-neutral base with mauve as the chromatic anchor, rosewater as the
-   * companion highlight, and blue for user-entered digits (the classic
-   * Catppuccin "editable data" cue). Variable names kept so class usages
-   * don't move. */
-  --color-ink: #4c4f69;           /* Latte `text` — UI labels, body copy */
-  --color-paper: #eff1f5;         /* Latte `base` — background */
-  --color-grid: #9ca0b0;           /* Latte `overlay0` — grid lines */
-  --color-accent: #8839ef;         /* Latte `mauve` — selected ring, badges */
-  --color-accent-light: #dc8a78;   /* Latte `rosewater` — same-value wash */
-  --color-highlight: #e6e9ef;      /* Latte `mantle` — soft surfaces */
-  --color-selected: #8839ef;       /* legacy alias → mauve */
-  --color-conflict: #d20f39;       /* Latte `red` — conflicts */
-  --color-same-value: #dc8a78;     /* legacy alias → rosewater */
-  /* Text hierarchy — fixed vs user is the single most important visual
-   * distinction in the app, so fixed goes near-black (achromatic "printer's
-   * ink") while user stays chromatic blue ("your pen"). Borrowed from
-   * Catppuccin Mocha's `base` so it still reads as Catppuccin-family. */
-  --color-fixed: #1e1e2e;          /* near-black — original clues, pressed-ink feel */
-  --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
-  --color-notes: #6c6f85;          /* Latte `subtext0` — candidate notes */
+  /* Catppuccin Mocha — dark flavor. Chosen for "lively" feel because pastels
+   * need a dark base to gain perceptual contrast; on a light base the same
+   * hues read as drab. Variable names kept so component classes don't move.
+   * Hierarchy inversion: fixed digits are pure white (printed ink on dark),
+   * user digits stay chromatic blue (your pen). */
+  --color-paper: #1e1e2e;          /* Mocha `base` — board + page bg */
+  --color-highlight: #313244;      /* Mocha `surface0` — soft surfaces (drawer sections) */
+  --color-grid: #45475a;           /* Mocha `surface1` — grid lines */
+  --color-ink: #cdd6f4;            /* Mocha `text` — UI labels, body copy */
+  --color-notes: #a6adc8;          /* Mocha `subtext0` — candidate notes, subordinate */
+  --color-fixed: #ffffff;          /* pure white — original clues, max luminance */
+  --color-user: #89b4fa;           /* Mocha `blue` — user-entered digits, chromatic */
+  --color-accent: #cba6f7;         /* Mocha `mauve` — selected ring + wash, the focal anchor */
+  --color-accent-light: #f5e0dc;   /* Mocha `rosewater` — same-value wash, warm companion */
+  --color-selected: #cba6f7;       /* legacy alias → mauve */
+  --color-conflict: #f38ba8;       /* Mocha `red` — emergency alarm */
+  --color-same-value: #f5e0dc;     /* legacy alias → rosewater */
 
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;

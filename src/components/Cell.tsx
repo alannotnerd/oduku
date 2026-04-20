@@ -53,11 +53,11 @@ export function Cell({ row, col }: CellProps) {
         outline-none focus:outline-none
         active:scale-95 touch-manipulation
         ${isSelected
-          ? 'bg-paper ring-[2.5px] ring-accent ring-inset z-10'
+          ? 'bg-accent/20 ring-[2.5px] ring-accent ring-inset z-10'
           : isSameValue
-            ? 'bg-accent-light/40'
+            ? 'bg-accent-light/25'
             : isRelated
-              ? 'bg-ink/[0.06]'
+              ? 'bg-ink/[0.04]'
               : 'bg-paper'}
         ${cell.isConflict ? 'bg-conflict/30 ring-[1.5px] ring-conflict/80 ring-inset z-10' : ''}
         ${cell.isFixed ? 'text-fixed font-semibold' : 'text-user'}
