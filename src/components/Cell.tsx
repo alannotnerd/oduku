@@ -36,10 +36,6 @@ export function Cell({ row, col }: CellProps) {
     cell.value !== null && 
     selectedValue === cell.value;
 
-  // Border logic for 3x3 boxes
-  const borderRight = col % 3 === 2 && col !== 8;
-  const borderBottom = row % 3 === 2 && row !== 8;
-
   const handleCellClick = () => {
     setSelected([row, col]);
   };
@@ -47,6 +43,8 @@ export function Cell({ row, col }: CellProps) {
   return (
     <button
       onClick={handleCellClick}
+      data-row={row}
+      data-col={col}
       className={`
         relative aspect-square w-full
         flex items-center justify-center
@@ -54,14 +52,12 @@ export function Cell({ row, col }: CellProps) {
         transition-colors duration-100
         outline-none focus:outline-none
         active:scale-95 touch-manipulation
-        ${borderRight ? 'border-r-2 border-r-grid' : 'border-r border-r-grid/30'}
-        ${borderBottom ? 'border-b-2 border-b-grid' : 'border-b border-b-grid/30'}
-        ${isSelected 
-          ? 'bg-selected/60 z-10' 
-          : isSameValue 
-            ? 'bg-same-value/50' 
-            : isRelated 
-              ? 'bg-highlight/50' 
+        ${isSelected
+          ? 'bg-selected/60 z-10'
+          : isSameValue
+            ? 'bg-same-value/50'
+            : isRelated
+              ? 'bg-highlight/50'
               : 'bg-paper'}
         ${cell.isConflict ? 'bg-conflict/40' : ''}
         ${cell.isFixed ? 'text-fixed font-semibold' : 'text-user'}

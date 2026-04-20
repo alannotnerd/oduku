@@ -117,16 +117,15 @@ export function LinkOverlay() {
     const newBoardRect = board.getBoundingClientRect();
     setBoardRect(newBoardRect);
 
-    const cells = board.querySelectorAll('button');
     const newCellRects = new Map<string, DOMRect>();
 
+    const findCell = (row: number, col: number) =>
+      board.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
+
     links.forEach(link => {
-      const fromIndex = link.from.row * 9 + link.from.col;
-      const toIndex = link.to.row * 9 + link.to.col;
-      
-      const fromCell = cells[fromIndex];
-      const toCell = cells[toIndex];
-      
+      const fromCell = findCell(link.from.row, link.from.col);
+      const toCell = findCell(link.to.row, link.to.col);
+
       if (fromCell) {
         newCellRects.set(`${link.from.row}-${link.from.col}`, fromCell.getBoundingClientRect());
       }
