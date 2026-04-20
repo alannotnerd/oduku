@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Catppuccin Latte — light flavor with two deliberate moves aimed at the
-   * "drab + peer dominance" critique:
-   *   (1) same-value uses Yellow, not Rosewater — at 92% lightness Rosewater
-   *       can't pop against a 95%-lightness paper base; Yellow is saturated
-   *       enough to be legibly warm at low opacity.
-   *   (2) fixed digits go near-black (off-Latte, borrowed from Mocha's base)
-   *       so the "printed clue vs your blue pen" distinction is unambiguous.
-   * Everything else is stock Latte. */
-  --color-paper: #eff1f5;          /* Latte `base` */
-  --color-highlight: #e6e9ef;      /* Latte `mantle` — drawer surfaces */
-  --color-grid: #9ca0b0;           /* Latte `overlay0` — grid lines */
-  --color-ink: #4c4f69;            /* Latte `text` — UI labels */
-  --color-notes: #6c6f85;          /* Latte `subtext0` — candidate notes */
-  --color-fixed: #1e1e2e;          /* near-black — original clues, printed-ink feel */
+  /* Warm-paper palette — Latte accents on a hand-warmed neutral ramp.
+   *
+   * Why off-Latte for the neutrals: Latte's stock `base` (#eff1f5) is a cool
+   * bluish gray. On a 9x9 grid, any ink-based overlay — even at 5% — reads as
+   * geometric smudges that out-compete the same-value/selected cues, and the
+   * whole board feels clinical. Shifting the paper and the ink ramp toward
+   * warm tones lets the existing Latte accents (mauve/yellow/red/blue) sing
+   * instead of fighting a cold field. The accents themselves stay stock Latte. */
+  --color-paper: #faf6ed;          /* warm cream — paper base */
+  --color-highlight: #f0e9d5;      /* darker cream for drawers/cards */
+  --color-grid: #a8a094;           /* warm medium gray — pencil-drawn grid */
+  --color-ink: #3b3936;            /* warm charcoal — UI labels */
+  --color-notes: #7b7468;          /* warm mid-tone — candidate notes */
+  --color-fixed: #1a1a17;          /* near-black warm — original-clue ink */
   --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
   --color-accent: #8839ef;         /* Latte `mauve` — selected ring + wash */
-  --color-accent-light: #df8e1d;   /* Latte `yellow` — same-value wash, chosen for liveliness */
+  --color-accent-light: #df8e1d;   /* Latte `yellow` — same-value + peer wash */
   --color-selected: #8839ef;       /* legacy alias → mauve */
   --color-conflict: #d20f39;       /* Latte `red` — emergency alarm */
   --color-same-value: #df8e1d;     /* legacy alias → yellow */
