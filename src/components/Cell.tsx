@@ -57,9 +57,9 @@ export function Cell({ row, col }: CellProps) {
           : isSameValue
             ? 'bg-accent-light/40'
             : isRelated
-              ? 'bg-ink/[0.04]'
+              ? 'bg-ink/[0.06]'
               : 'bg-paper'}
-        ${cell.isConflict ? 'bg-conflict/25 ring-1 ring-conflict/60 ring-inset' : ''}
+        ${cell.isConflict ? 'bg-conflict/30 ring-[1.5px] ring-conflict/80 ring-inset z-10' : ''}
         ${cell.isFixed ? 'text-fixed font-semibold' : 'text-user'}
       `}
       aria-label={`Cell ${row + 1}, ${col + 1}${cell.value ? `, value ${cell.value}` : ', empty'}`}

@@ -15,7 +15,11 @@
   --color-selected: #8839ef;       /* legacy alias → mauve */
   --color-conflict: #d20f39;       /* Latte `red` — conflicts */
   --color-same-value: #dc8a78;     /* legacy alias → rosewater */
-  --color-fixed: #4c4f69;          /* Latte `text` — original clues, paired w/ font-semibold */
+  /* Text hierarchy — fixed vs user is the single most important visual
+   * distinction in the app, so fixed goes near-black (achromatic "printer's
+   * ink") while user stays chromatic blue ("your pen"). Borrowed from
+   * Catppuccin Mocha's `base` so it still reads as Catppuccin-family. */
+  --color-fixed: #1e1e2e;          /* near-black — original clues, pressed-ink feel */
   --color-user: #1e66f5;           /* Latte `blue` — user-entered digits */
   --color-notes: #6c6f85;          /* Latte `subtext0` — candidate notes */
 
