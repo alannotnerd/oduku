@@ -1,22 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Aged-stationery palette: warm family, single chromatic anchor (terracotta),
-   * semantic alarm (garnet brick). Tuned for long solver sessions — no cool
-   * grays, no high-chroma saturation. User digits are sepia "pen-on-paper"
-   * rather than cold data blue; fixed digits are pressed printer's ink. */
+  /* Warm "morning paper" palette — a lighter, airier take on aged stationery.
+   * Same warm family and single chromatic anchor as before, but the surfaces,
+   * grid, and highlight washes are dialed up in luminance so the board breathes.
+   * Text contrast is preserved: fixed and ink still read strongly against paper,
+   * notes clear the 3:1 bar, user digits sit at 7:1 sepia. */
   --color-ink: #2a2319;
-  --color-paper: #f2ead4;
-  --color-grid: #8a7a62;
-  --color-accent: #a85939;
-  --color-accent-light: #d9a383;
-  --color-highlight: #e7dcc4;
-  --color-selected: #a85939;
-  --color-conflict: #8d2f26;
-  --color-same-value: #d9a383;
-  --color-fixed: #1e1811;
+  --color-paper: #fbf5e4;
+  --color-grid: #c2b295;
+  --color-accent: #bb6b4b;
+  --color-accent-light: #e8bc9e;
+  --color-highlight: #f0e6cf;
+  --color-selected: #bb6b4b;
+  --color-conflict: #a84035;
+  --color-same-value: #e8bc9e;
+  --color-fixed: #241c12;
   --color-user: #6b4529;
-  --color-notes: #7d6e55;
+  --color-notes: #8c7c62;
 
   /* Typography */
   --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
