@@ -440,6 +440,16 @@ export const newGameAtom = atom(
       set(selectedCellBaseAtom, null);
       set(pendingCellEditAtom, null);
       set(noteModeAtom, false);
+
+      // Reasoning state belongs to the previous puzzle — reset so the new
+      // board starts with no stale marks, links, hints, or pending drags.
+      set(candidateMarksAtom, new Map());
+      set(pendingLinkMarkAtom, null);
+      set(manualLinksAtom, []);
+      set(linksAtom, []);
+      set(hiddenLinkIndicesAtom, new Set<number>());
+      set(pendingLinkStartAtom, null);
+      set(currentHintAtom, null);
     } finally {
       // SPEC-008: clear loading flag on every exit path, including thrown
       // errors. Concurrent invocations each hit this finally; the atom
@@ -520,6 +530,17 @@ export const importPuzzleAtom = atom(
       set(selectedCellBaseAtom, null);
       set(pendingCellEditAtom, null);
       set(noteModeAtom, false);
+
+      // Reasoning state belongs to the previous puzzle — reset so the
+      // imported board starts with no stale marks, links, hints, or
+      // pending drags.
+      set(candidateMarksAtom, new Map());
+      set(pendingLinkMarkAtom, null);
+      set(manualLinksAtom, []);
+      set(linksAtom, []);
+      set(hiddenLinkIndicesAtom, new Set<number>());
+      set(pendingLinkStartAtom, null);
+      set(currentHintAtom, null);
 
       return true;
     } finally {
