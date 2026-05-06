@@ -12,13 +12,14 @@
  */
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   difficultyAtom,
   gameStateAtom,
   newGameAtom,
   type Difficulty,
 } from '../store/game';
+import { gameBoardToPuzzleString } from '../lib/sudoku';
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard', 'expert', 'master'];
 
@@ -72,6 +73,28 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   };
 
   const hasPuzzle = gameState.board.length > 0 && gameState.difficultyScore > 0;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyPuzzle = async () => {
+    const code = gameBoardToPuzzleString(gameState.board);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers / non-HTTPS
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <>
@@ -137,18 +160,31 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
             <p className="text-xs text-grid/50 mt-2">Tap a difficulty to start a new game</p>
           </section>
 
-          {/* Traces to: SPEC-012. Puzzle section — import entry point. */}
+          {/* Traces to: SPEC-012. Puzzle section — import + copy. */}
           <section>
             <h3 className="text-sm font-medium text-grid/80 mb-2">Puzzle</h3>
-            <button
-              onClick={handleImport}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              Import puzzle…
-            </button>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={handleImport}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Import puzzle…
+              </button>
+              {hasPuzzle && (
+                <button
+                  onClick={handleCopyPuzzle}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  {copied ? 'Copied!' : 'Copy puzzle code'}
+                </button>
+              )}
+            </div>
           </section>
 
           {/* Traces to: SPEC-012. Puzzle details — score + techniques. */}

@@ -428,6 +428,21 @@ export function gameBoardToBoard(gameBoard: GameBoard): Board {
 }
 
 /**
+ * Convert a GameBoard back to an 81-character puzzle string.
+ * Only clue (isFixed) cells are included; user-filled cells and
+ * empty cells are written as '0'.
+ */
+export function gameBoardToPuzzleString(gameBoard: GameBoard): string {
+  let result = '';
+  for (const row of gameBoard) {
+    for (const cell of row) {
+      result += cell.isFixed && cell.value !== null ? String(cell.value) : '0';
+    }
+  }
+  return result;
+}
+
+/**
  * Parse a Sudoku string into a Board.
  * Accepts 81-character strings where 1-9 are clues and 0 or . are empty cells.
  * Whitespace and newlines are stripped before parsing.
