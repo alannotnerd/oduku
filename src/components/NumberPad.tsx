@@ -333,15 +333,6 @@ export function NumberPad() {
         }}
         data-scroll-allowed
       >
-        {/* Traces to: SPEC-009. Info box always shows the selected cell's
-            location (R{row+1}C{col+1}). The cell's value is already visible
-            in the grid itself, so duplicating it here would be redundant. */}
-        <div className="flex items-center justify-center px-3 py-3 min-w-[48px] shrink-0 border-r border-grid/10">
-          <span className="text-[10px] text-grid/50 font-mono whitespace-nowrap">
-            R{selected[0] + 1}C{selected[1] + 1}
-          </span>
-        </div>
-
         {/* Number buttons */}
         <div className="flex-1 py-3 px-2 min-w-0">
           <div className="flex items-center justify-start gap-1.5 min-w-max">
