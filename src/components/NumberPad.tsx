@@ -344,8 +344,8 @@ export function NumberPad() {
         data-scroll-allowed
       >
         {/* Number buttons */}
-        <div className="flex-1 py-3 px-2 min-w-0">
-          <div className="flex items-center justify-start gap-1.5 min-w-max">
+        <div className="flex-1 py-2.5 sm:py-3 px-1 sm:px-2 min-w-0">
+          <div className="flex items-center justify-start gap-1 sm:gap-1.5 min-w-max">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
           const hasNote = !cellHasValue && selectedCell.notes.has(num);
           const isSwiping = swipingNum === num;
@@ -379,8 +379,8 @@ export function NumberPad() {
                 disabled={!isClickable}
                 data-touch-handled
                 className={`
-                  w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
-                  text-base sm:text-lg font-medium rounded-lg
+                  w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center
+                  text-sm sm:text-lg font-medium rounded-lg
                   transition-all duration-100 touch-manipulation select-none
                   ${buttonStyle}
                   ${isSwiping ? 'scale-110 shadow-lg' : ''}
