@@ -43,6 +43,9 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   const newGame = useSetAtom(newGameAtom);
   const gameState = useAtomValue(gameStateAtom);
 
+  const hasPuzzle = gameState.board.length > 0 && gameState.difficultyScore > 0;
+  const [copied, setCopied] = useState(false);
+
   // Traces to: SPEC-012 — Escape closes the drawer when open.
   useEffect(() => {
     if (!open) return;
@@ -71,9 +74,6 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
     onClose();
     onOpenImport();
   };
-
-  const hasPuzzle = gameState.board.length > 0 && gameState.difficultyScore > 0;
-  const [copied, setCopied] = useState(false);
 
   const handleCopyPuzzle = async () => {
     const code = gameBoardToPuzzleString(gameState.board);
