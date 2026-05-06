@@ -333,7 +333,8 @@ export function NumberPad() {
         {/* Number buttons - scrollable on small screens */}
         <div 
           className="flex-1 overflow-x-auto py-3 px-2"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overscrollBehavior: 'contain', touchAction: 'pan-x' }}
+          data-scroll-allowed
         >
           <div className="flex items-center justify-start gap-1.5 min-w-max">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
