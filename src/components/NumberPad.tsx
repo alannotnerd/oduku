@@ -196,11 +196,21 @@ export function NumberPad() {
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStartRef.current || !selected) return;
     
-    // Always prevent scrolling when we have a touch start
-    e.preventDefault();
-    
     const touch = e.touches[0];
     const dy = touch.clientY - touchStartRef.current.y;
+    const dx = touch.clientX - touchStartRef.current.x;
+    
+    // If the movement is more horizontal than vertical and the wheel
+    // hasn't activated yet, release the touch so the browser can scroll
+    // the numpad bar instead.
+    if (!wheelActivatedRef.current && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      touchStartRef.current = null;
+      setSwipingNum(null);
+      return; // no preventDefault — let the browser scroll
+    }
+    
+    // Vertical gesture — prevent browser scrolling while we handle the wheel
+    e.preventDefault();
     
     // Activate wheel when dragged up enough
     if (dy < -25 && !wheelActivatedRef.current) {
@@ -371,7 +381,7 @@ export function NumberPad() {
                 className={`
                   w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center
                   text-base sm:text-lg font-medium rounded-lg
-                  transition-all duration-100 touch-none select-none
+                  transition-all duration-100 touch-manipulation select-none
                   ${buttonStyle}
                   ${isSwiping ? 'scale-110 shadow-lg' : ''}
                 `}
