@@ -319,8 +319,20 @@ export function NumberPad() {
         candidateNum={swipingNum || 0}
       />
       
-      {/* Candidate Preview Bar - fixed label + scrollable numbers */}
-      <div className="flex items-center bg-highlight/50 rounded-xl overflow-hidden">
+      {/* Candidate Preview Bar — the entire bar scrolls horizontally as one unit.
+          When the mark wheel is visible, horizontal scroll is locked so it
+          doesn't interfere with the vertical swipe-to-select gesture. */}
+      <div
+        className="flex items-center bg-highlight/50 rounded-xl overflow-y-hidden"
+        style={{
+          overflowX: wheelVisible ? 'hidden' : 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          overscrollBehavior: 'contain',
+          touchAction: wheelVisible ? 'none' : 'pan-x',
+        }}
+        data-scroll-allowed
+      >
         {/* Traces to: SPEC-009. Info box always shows the selected cell's
             location (R{row+1}C{col+1}). The cell's value is already visible
             in the grid itself, so duplicating it here would be redundant. */}
@@ -330,12 +342,8 @@ export function NumberPad() {
           </span>
         </div>
 
-        {/* Number buttons - scrollable on small screens */}
-        <div 
-          className="flex-1 overflow-x-auto py-3 px-2"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overscrollBehavior: 'contain', touchAction: 'pan-x' }}
-          data-scroll-allowed
-        >
+        {/* Number buttons */}
+        <div className="flex-1 py-3 px-2 min-w-0">
           <div className="flex items-center justify-start gap-1.5 min-w-max">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => {
           const hasNote = !cellHasValue && selectedCell.notes.has(num);
