@@ -227,6 +227,7 @@ export interface HistoryNode {
   parentId: string | null;
   childrenIds: string[];
   filledCount: number; // Number of filled cells for progress tracking
+  isWrong: boolean;
 }
 
 export interface HistoryTree {
@@ -417,6 +418,7 @@ export const newGameAtom = atom(
         parentId: null,
         childrenIds: [],
         filledCount: countFilled(board),
+        isWrong: false,
       };
 
       set(gameStateAtom, {
@@ -507,6 +509,7 @@ export const importPuzzleAtom = atom(
         parentId: null,
         childrenIds: [],
         filledCount: countFilled(board),
+        isWrong: false,
       };
 
       set(gameStateAtom, {
@@ -654,6 +657,9 @@ export const setCellValueAtom = atom(
     const newNodeId = generateId();
     const currentNode = tree.nodes[tree.currentNodeId];
     
+    const isWrong = !noteMode && value !== null
+      && value !== state.solution[row][col];
+
     const newNode: HistoryNode = {
       id: newNodeId,
       board: cloneBoard(updatedBoard),
@@ -663,8 +669,9 @@ export const setCellValueAtom = atom(
       parentId: tree.currentNodeId,
       childrenIds: [],
       filledCount: countFilled(updatedBoard),
+      isWrong,
     };
-    
+
     // Update parent's children
     const updatedCurrentNode = {
       ...currentNode,
@@ -864,8 +871,9 @@ export const commitCellValueAtom = atom(
       parentId: tree.currentNodeId,
       childrenIds: [],
       filledCount: countFilled(updatedBoard),
+      isWrong: value !== state.solution[row][col],
     };
-    
+
     const updatedCurrentNode = {
       ...currentNode,
       childrenIds: [...currentNode.childrenIds, newNodeId],
@@ -941,6 +949,7 @@ export const commitNoteChangesAtom = atom(
       parentId: tree.currentNodeId,
       childrenIds: [],
       filledCount: countFilled(state.board),
+      isWrong: false,
     };
     
     const updatedCurrentNode = {

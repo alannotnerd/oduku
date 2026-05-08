@@ -239,7 +239,19 @@ function DraggableTreeCanvas({
           {layout.positions.map(pos => {
             const isCurrent = pos.id === historyTree.currentNodeId;
             const isRoot = pos.id === historyTree.rootId;
-            
+            const isWrong = pos.node.isWrong;
+
+            const circleFill = isWrong && !isCurrent
+              ? '#e74c3c'
+              : isCurrent ? '#e17055' : '#dfe6e9';
+            const circleStroke = isWrong
+              ? '#c0392b'
+              : isCurrent ? '#e17055' : '#b2bec3';
+            const glowStroke = isWrong ? '#e74c3c' : '#e17055';
+            const textFill = isCurrent
+              ? '#fff'
+              : isWrong ? '#c0392b' : '#2d3436';
+
             return (
               <g
                 key={pos.id}
@@ -251,11 +263,11 @@ function DraggableTreeCanvas({
                   cx={pos.x}
                   cy={pos.y}
                   r={NODE_RADIUS}
-                  fill={isCurrent ? '#e17055' : '#dfe6e9'}
-                  stroke={isCurrent ? '#e17055' : '#b2bec3'}
+                  fill={circleFill}
+                  stroke={circleStroke}
                   strokeWidth={isCurrent ? 3 : 1}
                 />
-                
+
                 {/* Current node glow */}
                 {isCurrent && (
                   <circle
@@ -263,12 +275,12 @@ function DraggableTreeCanvas({
                     cy={pos.y}
                     r={NODE_RADIUS + 4}
                     fill="none"
-                    stroke="#e17055"
+                    stroke={glowStroke}
                     strokeWidth={2}
                     opacity={0.3}
                   />
                 )}
-                
+
                 {/* Node label */}
                 <text
                   x={pos.x}
@@ -277,10 +289,10 @@ function DraggableTreeCanvas({
                   dominantBaseline="central"
                   fontSize={10}
                   fontFamily="monospace"
-                  fill={isCurrent ? '#fff' : '#2d3436'}
+                  fill={textFill}
                   fontWeight={isCurrent ? 'bold' : 'normal'}
                 >
-                  {isRoot ? '⦿' : pos.node.filledCount}
+                  {isRoot ? '⦿' : isWrong ? `✗${pos.node.filledCount}` : pos.node.filledCount}
                 </text>
               </g>
             );
