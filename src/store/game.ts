@@ -561,11 +561,11 @@ export const importPuzzleAtom = atom(
 // all remapped. History tree is rebuilt from a fresh root.
 export const relabelPuzzleAtom = atom(
   null,
-  (get, set) => {
+  (get, set, mapping?: Map<number, number>) => {
     const state = get(gameStateAtom);
     if (state.board.length === 0 || state.isComplete) return;
 
-    const perm = generateRandomPermutation();
+    const perm = mapping ?? generateRandomPermutation();
 
     const origPuzzle: Board = state.board.map(row =>
       row.map(cell => cell.isFixed ? cell.value : null)

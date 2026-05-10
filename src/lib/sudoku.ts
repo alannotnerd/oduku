@@ -469,6 +469,32 @@ export function relabelBoard(board: Board, perm: Map<number, number>): Board {
   );
 }
 
+export function createIdentityMapping(): Map<number, number> {
+  const m = new Map<number, number>();
+  for (let d = 1; d <= 9; d++) m.set(d, d);
+  return m;
+}
+
+export function isIdentityMapping(m: Map<number, number>): boolean {
+  for (let d = 1; d <= 9; d++) {
+    if (m.get(d) !== d) return false;
+  }
+  return true;
+}
+
+export function countDigitFrequency(board: GameBoard): Map<number, number> {
+  const freq = new Map<number, number>();
+  for (let d = 1; d <= 9; d++) freq.set(d, 0);
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell.value !== null) {
+        freq.set(cell.value, (freq.get(cell.value) ?? 0) + 1);
+      }
+    }
+  }
+  return freq;
+}
+
 /**
  * Parse a Sudoku string into a Board.
  * Accepts 81-character strings where 1-9 are clues and 0 or . are empty cells.

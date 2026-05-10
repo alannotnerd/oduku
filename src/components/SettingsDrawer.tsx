@@ -36,9 +36,10 @@ interface SettingsDrawerProps {
   open: boolean;
   onClose: () => void;
   onOpenImport: () => void;
+  onOpenRelabel?: () => void;
 }
 
-export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerProps) {
+export function SettingsDrawer({ open, onClose, onOpenImport, onOpenRelabel }: SettingsDrawerProps) {
   // Traces to: SPEC-012. read-only for puzzle details; write for difficulty.
   const [difficulty, setDifficulty] = useAtom(difficultyAtom);
   const newGame = useSetAtom(newGameAtom);
@@ -80,6 +81,11 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   const handleRelabel = () => {
     relabelPuzzle();
     onClose();
+  };
+
+  const handleCustomRelabel = () => {
+    onClose();
+    onOpenRelabel?.();
   };
 
   const handleCopyPuzzle = async () => {
@@ -193,13 +199,24 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
               )}
               {hasPuzzle && (
                 <button
+                  onClick={handleCustomRelabel}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  Custom relabel…
+                </button>
+              )}
+              {hasPuzzle && (
+                <button
                   onClick={handleRelabel}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Relabel numbers
+                  Random relabel
                 </button>
               )}
             </div>

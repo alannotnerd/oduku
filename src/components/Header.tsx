@@ -23,6 +23,7 @@ import {
   showHintAtom,
 } from '../store/game';
 import { ImportModal } from './ImportModal';
+import { RelabelModal } from './RelabelModal';
 import { SettingsDrawer } from './SettingsDrawer';
 
 export function Header() {
@@ -34,6 +35,7 @@ export function Header() {
   // Traces to: SPEC-012. ImportModal open state — still owned by Header, so
   // the drawer can request it via onOpenImport prop.
   const [importOpen, setImportOpen] = useState(false);
+  const [relabelOpen, setRelabelOpen] = useState(false);
 
   // Traces to: SPEC-011. Timer interval — unchanged from prior behavior;
   // gated on isComplete and empty board (SPEC-010 preserves this freeze).
@@ -102,8 +104,10 @@ export function Header() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onOpenImport={() => setImportOpen(true)}
+        onOpenRelabel={() => setRelabelOpen(true)}
       />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
+      <RelabelModal open={relabelOpen} onClose={() => setRelabelOpen(false)} />
     </header>
   );
 }
