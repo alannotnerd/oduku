@@ -17,6 +17,7 @@ import {
   difficultyAtom,
   gameStateAtom,
   newGameAtom,
+  relabelPuzzleAtom,
   type Difficulty,
 } from '../store/game';
 import { gameBoardToPuzzleString } from '../lib/sudoku';
@@ -41,6 +42,7 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   // Traces to: SPEC-012. read-only for puzzle details; write for difficulty.
   const [difficulty, setDifficulty] = useAtom(difficultyAtom);
   const newGame = useSetAtom(newGameAtom);
+  const relabelPuzzle = useSetAtom(relabelPuzzleAtom);
   const gameState = useAtomValue(gameStateAtom);
 
   const hasPuzzle = gameState.board.length > 0 && gameState.difficultyScore > 0;
@@ -73,6 +75,11 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
   const handleImport = () => {
     onClose();
     onOpenImport();
+  };
+
+  const handleRelabel = () => {
+    relabelPuzzle();
+    onClose();
   };
 
   const handleCopyPuzzle = async () => {
@@ -182,6 +189,17 @@ export function SettingsDrawer({ open, onClose, onOpenImport }: SettingsDrawerPr
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   {copied ? 'Copied!' : 'Copy puzzle code'}
+                </button>
+              )}
+              {hasPuzzle && (
+                <button
+                  onClick={handleRelabel}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-highlight text-grid hover:bg-grid/10 touch-manipulation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Relabel numbers
                 </button>
               )}
             </div>

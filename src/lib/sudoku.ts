@@ -443,6 +443,33 @@ export function gameBoardToPuzzleString(gameBoard: GameBoard): string {
 }
 
 /**
+ * Generate a random bijective mapping of digits 1-9 using Fisher-Yates shuffle.
+ * Returned Map keys are original digits, values are the remapped digits.
+ */
+export function generateRandomPermutation(): Map<number, number> {
+  const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  for (let i = digits.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [digits[i], digits[j]] = [digits[j], digits[i]];
+  }
+  const perm = new Map<number, number>();
+  for (let i = 0; i < 9; i++) {
+    perm.set(i + 1, digits[i]);
+  }
+  return perm;
+}
+
+/**
+ * Return a new Board with every non-null cell remapped through `perm`.
+ * Null cells stay null.
+ */
+export function relabelBoard(board: Board, perm: Map<number, number>): Board {
+  return board.map(row =>
+    row.map(value => (value === null ? null : perm.get(value) ?? value))
+  );
+}
+
+/**
  * Parse a Sudoku string into a Board.
  * Accepts 81-character strings where 1-9 are clues and 0 or . are empty cells.
  * Whitespace and newlines are stripped before parsing.

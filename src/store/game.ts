@@ -8,6 +8,8 @@ import {
   updateConflicts,
   isSolved,
   parseSudokuString,
+  generateRandomPermutation,
+  relabelBoard,
 } from '../lib/sudoku';
 import { activeProvider } from '../lib/providers';
 import type { HintStep, CandidateLink } from '../lib/providers';
@@ -551,6 +553,84 @@ export const importPuzzleAtom = atom(
       // returns (invalid input, unsolvable puzzle) and thrown errors.
       set(isGeneratingAtom, false);
     }
+  }
+);
+
+// Relabel the puzzle by applying a random permutation to digits 1-9.
+// Produces an isomorphic puzzle: clues, solution, and user-filled values are
+// all remapped. History tree is rebuilt from a fresh root.
+export const relabelPuzzleAtom = atom(
+  null,
+  (get, set) => {
+    const state = get(gameStateAtom);
+    if (state.board.length === 0 || state.isComplete) return;
+
+    const perm = generateRandomPermutation();
+
+    const origPuzzle: Board = state.board.map(row =>
+      row.map(cell => cell.isFixed ? cell.value : null)
+    );
+
+    const userValues: Board = state.board.map(row =>
+      row.map(cell => (!cell.isFixed && cell.value !== null) ? cell.value : null)
+    );
+
+    const relabeledPuzzle = relabelBoard(origPuzzle, perm);
+    const relabeledSolution = relabelBoard(state.solution, perm);
+    const relabeledUserValues = relabelBoard(userValues, perm);
+
+    const board = createGameBoard(relabeledPuzzle);
+
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        const val = relabeledUserValues[row][col];
+        if (val !== null) {
+          board[row][col].value = val;
+          board[row][col].notes = new Set();
+        }
+      }
+    }
+
+    const updatedBoard = updateConflicts(board);
+
+    const rootId = generateId();
+    const rootNode: HistoryNode = {
+      id: rootId,
+      board: cloneBoard(updatedBoard),
+      moveCount: 0,
+      timestamp: Date.now(),
+      description: 'Relabel',
+      parentId: null,
+      childrenIds: [],
+      filledCount: countFilled(updatedBoard),
+      isWrong: false,
+    };
+
+    set(gameStateAtom, {
+      ...state,
+      board: updatedBoard,
+      solution: relabeledSolution,
+      startTime: Date.now(),
+      moveCount: 0,
+    });
+
+    set(historyTreeAtom, {
+      nodes: { [rootId]: rootNode },
+      currentNodeId: rootId,
+      rootId,
+    });
+    set(historyAtom, []);
+
+    set(candidateMarksAtom, new Map());
+    set(pendingLinkMarkAtom, null);
+    set(manualLinksAtom, []);
+    set(linksAtom, []);
+    set(hiddenLinkIndicesAtom, new Set<number>());
+    set(pendingLinkStartAtom, null);
+    set(currentHintAtom, null);
+    set(selectedCellBaseAtom, null);
+    set(pendingCellEditAtom, null);
+    set(noteModeAtom, false);
   }
 );
 
